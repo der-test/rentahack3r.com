@@ -44,7 +44,7 @@ You can't, because this is a joke. Seriously, don't hire hackers.
 
 ## Contact Us
 
-Send your requests to [hacks@rentahack3r.com](mailto:hacks@rentahack3r.com)
+Send your requests wherever you want.
 
 _Disclaimer: This site is purely fictional. Don't actually try to hire hackers. Seriously._
 
