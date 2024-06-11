@@ -58,4 +58,10 @@ This project is intended to be hosted on GitHub Pages. Simply fork the repositor
 
 ## Disclaimer
 
-This site is purely fictional and creat
+This site is purely fictional and created for entertainment purposes. Do not attempt to hire hackers or engage in illegal activities. Seriously.
+
+---
+
+## Contact
+
+For inquiries about this mock project, you can not reach us.
