@@ -1,8 +1,0 @@
----
----
-
-@import "{{ site.theme }}";
-
-#downloads .btn {
-  display: none !important;
-}
