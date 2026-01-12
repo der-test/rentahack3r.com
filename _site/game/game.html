@@ -842,7 +842,6 @@
             totalAttempts: 0,
             totalCorrect: 0,
             alertLevel: 0,
-            challengeTimes: [0, 0, 0, 0, 0],
             difficulty: 0,
             playerName: '',
             isLegendary: false,
@@ -963,15 +962,23 @@
             const targetDiv = document.createElement('div');
             targetDiv.className = 'phone-line';
             targetDiv.style.color = '#ff10f0';
-            targetDiv.style.textShadow = '0 0 10px #ff10f0';
+            targetDiv.style.textShadow = '0 0 10px #ff10f0, 0 0 20px #ff10f0';
             targetDiv.style.borderColor = '#ff10f0';
-            targetDiv.style.background = 'rgba(255, 16, 240, 0.1)';
+            targetDiv.style.background = 'rgba(255, 16, 240, 0.2)';
+            targetDiv.style.fontSize = '1.3rem';
+            targetDiv.style.fontWeight = 'bold';
             targetDiv.textContent = `Target: `;
             wardialingBoard.appendChild(targetDiv);
 
             // Create status display
             const statusDiv = document.createElement('div');
             statusDiv.className = 'phone-line';
+            statusDiv.style.color = '#00ffff';
+            statusDiv.style.textShadow = '0 0 10px #00ffff, 0 0 20px #00ffff';
+            statusDiv.style.borderColor = '#00ffff';
+            statusDiv.style.background = 'rgba(0, 255, 255, 0.2)';
+            statusDiv.style.fontSize = '1.3rem';
+            statusDiv.style.fontWeight = 'bold';
             statusDiv.textContent = `Dialed: `;
             wardialingBoard.appendChild(statusDiv);
 
@@ -1054,7 +1061,8 @@
                 return maxRot;
             }
 
-            document.addEventListener('mousemove', (e) => {
+            // Create named handlers for proper cleanup
+            const handleMouseMove = (e) => {
                 if (!isDragging) return;
                 
                 const clientY = e.clientY;
@@ -1069,9 +1077,9 @@
                 
                 currentRotation = newRotation;
                 dial.style.transform = `rotate(${currentRotation}deg)`;
-            });
+            };
 
-            document.addEventListener('touchmove', (e) => {
+            const handleTouchMove = (e) => {
                 if (!isDragging) return;
                 
                 const clientY = e.touches[0].clientY;
@@ -1084,22 +1092,27 @@
                 
                 currentRotation = newRotation;
                 dial.style.transform = `rotate(${currentRotation}deg)`;
-            }, { passive: true });
+            };
 
-            document.addEventListener('mouseup', () => {
+            const handleMouseUp = () => {
                 if (isDragging) {
                     isDragging = false;
                     dial.style.cursor = 'grab';
                     handleDialRelease();
                 }
-            });
+            };
 
-            document.addEventListener('touchend', () => {
+            const handleTouchEnd = () => {
                 if (isDragging) {
                     isDragging = false;
                     handleDialRelease();
                 }
-            });
+            };
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('touchmove', handleTouchMove, { passive: true });
+            document.addEventListener('mouseup', handleMouseUp);
+            document.addEventListener('touchend', handleTouchEnd);
 
             function handleDialRelease() {
                 challengeData.isDialing = true;
@@ -1147,6 +1160,11 @@
                                 challengeData.isDialing = false;
                                 if (challengeData.completedSequences >= challengeData.targetSequences) {
                                     clearInterval(timerInterval);
+                                    // Clean up event listeners
+                                    document.removeEventListener('mousemove', handleMouseMove);
+                                    document.removeEventListener('touchmove', handleTouchMove);
+                                    document.removeEventListener('mouseup', handleMouseUp);
+                                    document.removeEventListener('touchend', handleTouchEnd);
                                     nextChallenge();
                                 } else {
                                     generateNextTarget();
@@ -1185,6 +1203,7 @@
         function createSocialChallenge(board, timerInterval) {
             const commands = ['CONNECT', 'BYPASS', 'EXPLOIT', 'ACCESS', 'DECRYPT', 'EXTRACT'];
             const sequenceLength = 3 + Math.floor(gameState.difficulty);
+            const targetSequences = 3 + Math.floor(gameState.difficulty * 0.5);
             const sequence = Array(sequenceLength).fill().map(() => commands[Math.floor(Math.random() * commands.length)]);
 
             const challengeData = {
@@ -1192,6 +1211,7 @@
                 currentIndex: 0,
                 timerInterval: timerInterval,
                 correctSequences: 0,
+                targetSequences: targetSequences,
                 attempts: 0
             };
 
@@ -1229,6 +1249,14 @@
                         if (challengeData.currentIndex >= sequence.length) {
                             challengeData.correctSequences++;
                             challengeData.currentIndex = 0;
+                            
+                            // Check if target sequences reached
+                            if (challengeData.correctSequences >= challengeData.targetSequences) {
+                                clearInterval(timerInterval);
+                                nextChallenge();
+                                return;
+                            }
+                            
                             // Restart sequence for next round
                             setTimeout(() => {
                                 sequence.forEach((cmd, idx) => {
@@ -1405,6 +1433,7 @@
             const challengeData = {
                 tiles: tiles,
                 matched: 0,
+                totalPairs: pairsCount,
                 selected: [],
                 timerInterval: timerInterval
             };
@@ -1421,7 +1450,7 @@
                 tile.textContent = '?';
 
                 const handleTap = () => {
-                    if (challengeData.selected.length < 2 && !tile.classList.contains('flipped')) {
+                    if (challengeData.selected.length < 2 && !tile.classList.contains('flipped') && !tile.classList.contains('matched')) {
                         tile.classList.add('flipped');
                         tile.textContent = icon;
                         challengeData.selected.push({ tile, index: idx, icon });
@@ -1436,7 +1465,14 @@
                                 challengeData.selected.forEach(item => {
                                     item.tile.classList.add('matched');
                                 });
+                                
+                                // Check if all pairs matched
+                                if (challengeData.matched >= challengeData.totalPairs) {
+                                    clearInterval(timerInterval);
+                                    setTimeout(() => nextChallenge(), 600);
+                                }
                             } else {
+                                updateScore(-5);
                                 setTimeout(() => {
                                     challengeData.selected.forEach(item => {
                                         item.tile.classList.remove('flipped');
@@ -1489,6 +1525,13 @@
                         gameState.totalCorrect++;
                         gameState.totalAttempts++;
                         updateScore(30 + gameState.difficulty * 5);
+                        
+                        // Check if target reached
+                        if (challengeData.tappedCount >= challengeData.targetTaps) {
+                            clearInterval(timerInterval);
+                            clearInterval(spawnInterval);
+                            nextChallenge();
+                        }
                     }
                 };
                 zone.addEventListener('touchstart', (e) => {
@@ -1513,17 +1556,10 @@
                     spawnLegendaryZone();
                 }
             }, challengeData.spawnRate * 1000);
-
-            // Override cleanup
-            const originalInterval = challengeData.timerInterval;
-            challengeData.timerInterval = setInterval((() => {
-                // Dummy - actual timer is handled by main startChallenge function
-            }).bind(this), 100);
         }
 
 
         function updateScore(points) {
-            console.log(`updateScore called with points: ${points}, old score: ${gameState.score}, new score: ${gameState.score + points}`);
             gameState.score += points;
             document.getElementById('hudScore').textContent = gameState.score;
         }
