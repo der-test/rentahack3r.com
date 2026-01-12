@@ -140,3 +140,6 @@ When updating content:
 - **Adjust styling**: Modify `assets/css/custom.css`
 - **Add multilingual content**: Add new HTML files in appropriate folders, following `qr.html` pattern
 - **Change theme**: Update `remote_theme` version in `_config.yml`
+
+Precautions:
+- never remove qr/qr.html as it is used for a different subdomain
