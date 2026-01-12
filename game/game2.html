@@ -3,42 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Isometric Reconnaissance</title>
+    <title>DATASCAPE EXPLORATION</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e27; font-family: 'Courier New', monospace; color: #00ff41; }
-        canvas { display: block; width: 100%; height: 100%; }
-        .scanlines { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); }
-        #hud { position: fixed; top: 20px; left: 20px; z-index: 40; font-size: 14px; line-height: 1.6; text-shadow: 0 0 10px rgba(0,255,65,0.5); }
-        .hud-line { color: #00ff41; margin: 4px 0; text-transform: uppercase; }
+        canvas { display: block; width: 100%; height: 100%; background: linear-gradient(135deg, #0a0e27 0%, #1a1e47 100%); }
+        .scanlines { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); animation: scan 0.08s linear infinite; }
+        @keyframes scan { 0% { transform: translateY(0); } 100% { transform: translateY(4px); } }
+        #hud { position: fixed; top: 20px; left: 20px; z-index: 40; font-size: 13px; line-height: 1.5; text-shadow: 0 0 10px rgba(0,255,65,0.5); background: rgba(10,14,39,0.8); border: 2px solid #00ff41; padding: 12px; }
+        .hud-line { color: #00ff41; margin: 3px 0; text-transform: uppercase; }
         .hud-label { color: #ff10f0; }
         .hud-value { color: #00ffff; }
-        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 100; }
+        .crosshair { position: fixed; top: 50%; left: 50%; z-index: 30; transform: translate(-50%, -50%); width: 20px; height: 20px; border: 2px solid #00ff41; }
+        .crosshair::before, .crosshair::after { content: ''; position: absolute; background: #00ff41; }
+        .crosshair::before { width: 2px; height: 10px; left: 9px; top: -15px; }
+        .crosshair::after { width: 10px; height: 2px; left: -15px; top: 9px; }
+        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; z-index: 100; }
         .modal-backdrop.active { display: flex; align-items: center; justify-content: center; }
-        .challenge-modal { background: rgba(10,14,39,0.95); border: 3px solid #00ff41; padding: 40px; max-width: 600px; width: 90%; box-shadow: 0 0 30px rgba(0,255,65,0.3); }
-        .challenge-modal h2 { color: #00ff41; font-size: 24px; margin-bottom: 20px; text-transform: uppercase; text-shadow: -3px 0 0 #ff10f0, 3px 0 0 #00ffff; }
-        .challenge-modal p { color: #00ffff; font-size: 16px; margin-bottom: 30px; }
-        .timer-bar { width: 100%; height: 12px; background: #0a0e27; border: 2px solid #00ff41; margin-bottom: 30px; overflow: hidden; }
-        .timer-fill { height: 100%; background: linear-gradient(90deg, #00ff41, #39ff14); width: 100%; }
-        .option-label { display: flex; padding: 10px; margin: 8px 0; background: rgba(0,255,65,0.05); border: 2px solid #00ff41; cursor: pointer; }
+        .challenge-modal { background: rgba(10,14,39,0.98); border: 3px solid #00ff41; padding: 30px; max-width: 550px; width: 90%; box-shadow: 0 0 40px rgba(0,255,65,0.4); }
+        .challenge-modal h2 { color: #00ff41; font-size: 20px; margin-bottom: 15px; text-transform: uppercase; text-shadow: -2px 0 0 #ff10f0, 2px 0 0 #00ffff; }
+        .challenge-modal p { color: #00ffff; font-size: 14px; margin-bottom: 20px; }
+        .timer-bar { width: 100%; height: 10px; background: #0a0e27; border: 2px solid #00ff41; margin-bottom: 20px; overflow: hidden; }
+        .timer-fill { height: 100%; background: linear-gradient(90deg, #00ff41, #39ff14); width: 100%; transition: width 0.1s; }
+        .option-label { display: flex; padding: 8px; margin: 6px 0; background: rgba(0,255,65,0.05); border: 2px solid #00ff41; cursor: pointer; }
         .option-label:hover { background: rgba(0,255,65,0.15); }
-        .option-label input { margin-right: 10px; accent-color: #00ff41; cursor: pointer; }
-        .option-text { color: #00ffff; }
-        button { padding: 10px 20px; background: #0a0e27; color: #00ff41; border: 2px solid #00ff41; font-family: monospace; cursor: pointer; margin-right: 10px; text-transform: uppercase; }
+        .option-label input { margin-right: 8px; accent-color: #00ff41; cursor: pointer; }
+        .option-text { color: #00ffff; font-size: 13px; }
+        button { padding: 8px 16px; background: #0a0e27; color: #00ff41; border: 2px solid #00ff41; font-family: monospace; cursor: pointer; margin-right: 8px; text-transform: uppercase; font-size: 12px; }
         button:hover { background: #00ff41; color: #0a0e27; }
-        .toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(0,255,65,0.95); color: #0a0e27; padding: 16px 32px; z-index: 101; font-weight: bold; }
+        .toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(0,255,65,0.95); color: #0a0e27; padding: 12px 24px; z-index: 101; font-weight: bold; font-size: 12px; }
         .toast.failure { background: rgba(255,0,0,0.95); color: #fff; }
+        #minimap { position: fixed; bottom: 20px; right: 20px; width: 150px; height: 150px; border: 2px solid #00ff41; background: rgba(10,14,39,0.9); z-index: 40; }
+        .controls { position: fixed; bottom: 20px; left: 20px; z-index: 40; font-size: 11px; background: rgba(10,14,39,0.8); border: 2px solid #00ff41; padding: 8px; color: #00ffff; }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
     <div class="scanlines"></div>
+    <div class="crosshair"></div>
+
     <div id="hud">
+        <div class="hud-line"><span class="hud-label">POS:</span> <span class="hud-value" id="posDisplay">0.0, 0.0, 0.0</span></div>
         <div class="hud-line"><span class="hud-label">SCORE:</span> <span class="hud-value" id="scoreDisplay">0</span></div>
-        <div class="hud-line"><span class="hud-label">DIFFICULTY:</span> <span class="hud-value" id="difficultyDisplay">1.0x</span></div>
-        <div class="hud-line"><span class="hud-label">NPCS:</span> <span class="hud-value" id="npcDisplay">0/6</span></div>
-        <div class="hud-line"><span class="hud-label">ACCURACY:</span> <span class="hud-value" id="accuracyDisplay">0%</span></div>
+        <div class="hud-line"><span class="hud-label">SYSTEMS:</span> <span class="hud-value" id="systemsDisplay">0/8</span></div>
+        <div class="hud-line"><span class="hud-label">SPEED:</span> <span class="hud-value" id="speedDisplay">0.0</span></div>
     </div>
+
+    <div class="controls">
+        <div style="color: #ff10f0;">MOVEMENT:</div>
+        <div>W/A/S/D - MOVE</div>
+        <div>SPACE - UP</div>
+        <div>C - DOWN</div>
+        <div style="color: #ff10f0; margin-top: 4px;">MOUSE - LOOK</div>
+    </div>
+
+    <canvas id="minimap"></canvas>
 
     <div id="modalBackdrop" class="modal-backdrop">
         <div class="challenge-modal">
@@ -47,313 +66,399 @@
             <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
             <div id="optionsGroup"></div>
             <button id="submitBtn">SUBMIT</button>
-            <button id="cancelBtn">CANCEL</button>
+            <button id="cancelBtn">SKIP</button>
         </div>
     </div>
 
     <script>
-        // Canvas Setup
+        // ============== MATH & UTILITY ==============
+        class Vec3 {
+            constructor(x = 0, y = 0, z = 0) {
+                this.x = x; this.y = y; this.z = z;
+            }
+            clone() { return new Vec3(this.x, this.y, this.z); }
+            add(v) { return new Vec3(this.x + v.x, this.y + v.y, this.z + v.z); }
+            sub(v) { return new Vec3(this.x - v.x, this.y - v.y, this.z - v.z); }
+            mul(s) { return new Vec3(this.x * s, this.y * s, this.z * s); }
+            dist(v) {
+                const dx = this.x - v.x, dy = this.y - v.y, dz = this.z - v.z;
+                return Math.sqrt(dx*dx + dy*dy + dz*dz);
+            }
+            normalize() {
+                const len = Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z);
+                return len > 0 ? new Vec3(this.x/len, this.y/len, this.z/len) : new Vec3();
+            }
+            dot(v) { return this.x*v.x + this.y*v.y + this.z*v.z; }
+        }
+
+        // ============== CANVAS SETUP ==============
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        const minimapCanvas = document.getElementById('minimap');
+        const minimapCtx = minimapCanvas.getContext('2d');
 
-        // Game Constants
-        const TILE_SIZE = 40;
-        const MAP_WIDTH = 20;
-        const MAP_HEIGHT = 16;
-        const PLAYER_SPEED = 150; // pixels per second
-        const ISO_X_OFFSET = 0.5;
-        const ISO_Y_OFFSET = 0.25;
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
-        // Colors
-        const COLORS = {
-            bg: '#0a0e27',
-            green: '#00ff41',
-            cyan: '#00ffff',
-            magenta: '#ff10f0',
-            lime: '#39ff14',
-            water: '#0088ff',
-            stone: '#666666'
+        // ============== CAMERA & INPUT ==============
+        const camera = {
+            pos: new Vec3(50, 5, 50),
+            euler: { x: 0, y: 0 },
+            fov: 60,
+            getForward() {
+                return new Vec3(
+                    Math.sin(this.euler.y),
+                    0,
+                    Math.cos(this.euler.y)
+                );
+            },
+            getRight() {
+                return new Vec3(
+                    Math.cos(this.euler.y),
+                    0,
+                    -Math.sin(this.euler.y)
+                );
+            }
         };
 
-        // Game State
+        const keys = {};
+        const mouse = { locked: false, dx: 0, dy: 0 };
+
+        document.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+            if (e.key === ' ') e.preventDefault();
+        });
+        document.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+        });
+
+        canvas.addEventListener('click', () => {
+            canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock;
+            canvas.requestPointerLock();
+        });
+
+        document.addEventListener('pointerlockchange', () => {
+            mouse.locked = document.pointerLockElement === canvas;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!mouse.locked) return;
+            mouse.dx += e.movementX * 0.002;
+            mouse.dy += e.movementY * 0.002;
+        });
+
+        // ============== WORLD GENERATION ==============
+        const worldNoise = {
+            seed: 12345,
+            hash(x, y) {
+                let h = this.seed + x * 374761393 ^ y * 668265263;
+                h = (h ^ (h >> 13)) * 274761393;
+                return ((h ^ (h >> 16)) & 2147483647) / 2147483647;
+            },
+            perlin2d(x, y) {
+                const xi = Math.floor(x), yi = Math.floor(y);
+                const xf = x - xi, yf = y - yi;
+                const u = xf * xf * (3 - 2*xf), v = yf * yf * (3 - 2*yf);
+                
+                const n00 = this.hash(xi, yi);
+                const n10 = this.hash(xi+1, yi);
+                const n01 = this.hash(xi, yi+1);
+                const n11 = this.hash(xi+1, yi+1);
+                
+                const nx0 = n00 + u * (n10 - n00);
+                const nx1 = n01 + u * (n11 - n01);
+                return nx0 + v * (nx1 - nx0);
+            },
+            getHeight(x, z) {
+                let height = 0;
+                height += this.perlin2d(x*0.05, z*0.05) * 3;
+                height += this.perlin2d(x*0.1, z*0.1) * 1.5;
+                return height;
+            },
+            getTerrain(x, z) {
+                const height = this.getHeight(x, z);
+                if (height < -0.5) return 'water';
+                if (height < 0.2) return 'dirt';
+                if (height < 1) return 'grass';
+                return 'stone';
+            }
+        };
+
+        // ============== GAME STATE ==============
         const gameState = {
-            playerPos: { x: 10, y: 8 },
-            pathQueue: [],
             score: 0,
-            difficulty: 1.0,
-            npcsMet: 0,
+            systemsMet: 0,
             totalAttempts: 0,
             correctAnswers: 0,
             challengeActive: false,
-            selectedOption: null
+            selectedOption: null,
+            playerSpeed: 0
         };
 
-        let tilemap = new Uint8Array(MAP_WIDTH * MAP_HEIGHT);
-        let npcMap = {};
-        let lastTime = Date.now();
-
-        // NPCs
-        const npcs = [
-            { pos: {x:2, y:2}, title: 'PACKET ANALYSIS', question: 'Port 443 protocol?', options: ['HTTPS', 'FTP', 'Telnet', 'SMTP'], correct: 0 },
-            { pos: {x:17, y:3}, title: 'DECODE SIGNAL', question: '"48656C6C6F" hex?', options: ['Hello', 'Help', 'Hallo', 'Helix'], correct: 0 },
-            { pos: {x:10, y:14}, title: 'ERROR FORENSICS', question: 'HTTP 401 means?', options: ['Unauthorized', 'Not Found', 'Error', 'Bad Gateway'], correct: 0 },
-            { pos: {x:3, y:12}, title: 'SECURITY AUDIT', question: 'Plaintext auth?', options: ['Basic Auth', 'OAuth', 'JWT', 'Kerberos'], correct: 0 },
-            { pos: {x:16, y:10}, title: 'GATEWAY ANALYSIS', question: 'SYN flood targets?', options: ['Transport', 'Application', 'Data Link', 'Physical'], correct: 0 },
-            { pos: {x:8, y:2}, title: 'CIPHER MASTERY', question: 'Salt purpose?', options: ['Rainbow table', 'Speed up', 'Encrypt', 'Verify'], correct: 0 }
+        // ============== NPCs ==============
+        const npcs = [];
+        const npcPositions = [
+            {x: 30, z: 30, name: 'NODE_A'},
+            {x: 70, z: 40, name: 'NODE_B'},
+            {x: 50, z: 70, name: 'NODE_C'},
+            {x: 20, z: 60, name: 'NODE_D'},
+            {x: 80, z: 20, name: 'NODE_E'},
+            {x: 60, z: 55, name: 'NODE_F'},
+            {x: 35, z: 45, name: 'NODE_G'},
+            {x: 75, z: 75, name: 'NODE_H'}
         ];
 
-        // Initialize tilemap
-        function initTilemap() {
-            for (let i = 0; i < tilemap.length; i++) tilemap[i] = 0;
-            for (let i = 0; i < 25; i++) {
-                const x = Math.floor(Math.random() * MAP_WIDTH);
-                const y = Math.floor(Math.random() * MAP_HEIGHT);
-                if (Math.abs(x - 10) > 2 || Math.abs(y - 8) > 2) {
-                    tilemap[y * MAP_WIDTH + x] = Math.random() > 0.5 ? 1 : 2;
+        npcPositions.forEach(pos => {
+            const h = worldNoise.getHeight(pos.x, pos.z);
+            npcs.push({
+                pos: new Vec3(pos.x, h + 2, pos.z),
+                name: pos.name,
+                active: false,
+                distToPlayer: 999
+            });
+        });
+
+        // ============== CHALLENGE POOL ==============
+        const challenges = [
+            { title: 'EXPLOIT DETECTED', question: 'SQL injection targets?', options: ['Database', 'Firewall', 'Memory', 'Cache'], correct: 0 },
+            { title: 'BREACH PROTOCOL', question: 'Zero-day definition?', options: ['Unknown exploit', 'Old bug', 'Documented flaw', 'Feature'], correct: 0 },
+            { title: 'CRYPTO ANALYSIS', question: 'SHA256 output size?', options: ['256 bits', '256 bytes', '128 bits', '512 bits'], correct: 0 },
+            { title: 'NETWORK TRACE', question: 'HTTPS default port?', options: ['443', '80', '8080', '22'], correct: 0 },
+            { title: 'MEMORY DUMP', question: 'Buffer overflow risk?', options: ['Unbounded copy', 'Encryption', 'Checksum', 'Sorting'], correct: 0 },
+            { title: 'CODE REVIEW', question: 'CSRF protection?', options: ['Token validation', 'Encryption', 'Rate limit', 'Logging'], correct: 0 },
+            { title: 'INTRUSION LOG', question: 'Rootkit operates in?', options: ['Kernel space', 'User space', 'Ring 3', 'Application'], correct: 0 },
+            { title: 'THREAT SCAN', question: 'Ransomware = ?', options: ['Encrypt + ransom', 'Copy + steal', 'Delete + log', 'Stall + crash'], correct: 0 }
+        ];
+
+        // ============== 3D RENDERING ==============
+        function project3D(pos) {
+            const relPos = pos.sub(camera.pos);
+            
+            const forward = camera.getForward();
+            const right = camera.getRight();
+            const up = new Vec3(0, 1, 0);
+            
+            const depth = relPos.dot(forward);
+            const screenX = relPos.dot(right);
+            const screenY = relPos.dot(up);
+            
+            if (depth <= 0.1) return null;
+            
+            const scale = (canvas.height / 2) / Math.tan((camera.fov / 2) * Math.PI / 180);
+            const x = canvas.width / 2 + (screenX / depth) * scale;
+            const y = canvas.height / 2 - (screenY / depth) * scale;
+            
+            return { x, y, depth };
+        }
+
+        function drawCube(pos, size, color, depth) {
+            const half = size / 2;
+            const corners = [
+                pos.add(new Vec3(-half, -half, -half)),
+                pos.add(new Vec3(half, -half, -half)),
+                pos.add(new Vec3(half, -half, half)),
+                pos.add(new Vec3(-half, -half, half)),
+                pos.add(new Vec3(-half, half, -half)),
+                pos.add(new Vec3(half, half, -half)),
+                pos.add(new Vec3(half, half, half)),
+                pos.add(new Vec3(-half, half, half))
+            ];
+            
+            const proj = corners.map(c => {
+                const p = project3D(c);
+                return p || { x: -1000, y: -1000, depth: 99999 };
+            });
+            
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1;
+            
+            const edges = [
+                [0,1], [1,2], [2,3], [3,0],
+                [4,5], [5,6], [6,7], [7,4],
+                [0,4], [1,5], [2,6], [3,7]
+            ];
+            
+            edges.forEach(([a, b]) => {
+                if (proj[a] && proj[b]) {
+                    ctx.beginPath();
+                    ctx.moveTo(proj[a].x, proj[a].y);
+                    ctx.lineTo(proj[b].x, proj[b].y);
+                    ctx.stroke();
                 }
-            }
-            npcs.forEach(npc => {
-                npcMap[npc.pos.x + ',' + npc.pos.y] = npc;
             });
         }
 
-        function isWalkable(x, y) {
-            return x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT && tilemap[y * MAP_WIDTH + x] === 0;
-        }
-
-        // Isometric projection
-        function gridToIso(gridX, gridY) {
-            const isoX = (gridX - gridY) * TILE_SIZE * ISO_X_OFFSET;
-            const isoY = (gridX + gridY) * TILE_SIZE * ISO_Y_OFFSET;
-            return { x: isoX, y: isoY };
-        }
-
-        function isoToGrid(isoX, isoY) {
-            const gridX = (isoX / (TILE_SIZE * ISO_X_OFFSET) + isoY / (TILE_SIZE * ISO_Y_OFFSET)) / 2;
-            const gridY = (isoY / (TILE_SIZE * ISO_Y_OFFSET) - isoX / (TILE_SIZE * ISO_X_OFFSET)) / 2;
-            return { x: Math.round(gridX), y: Math.round(gridY) };
-        }
-
-        // Pathfinding
-        function heuristic(a, b) {
-            return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-        }
-
-        function findPath(start, goal) {
-            const openSet = [start];
-            const cameFrom = new Map();
-            const gScore = new Map();
-            const fScore = new Map();
-            const key = p => p.x + ',' + p.y;
-
-            gScore.set(key(start), 0);
-            fScore.set(key(start), heuristic(start, goal));
-
-            while (openSet.length > 0) {
-                let current = openSet[0];
-                let currentIdx = 0;
-                for (let i = 1; i < openSet.length; i++) {
-                    if (fScore.get(key(openSet[i])) < fScore.get(key(current))) {
-                        current = openSet[i];
-                        currentIdx = i;
-                    }
-                }
-
-                if (current.x === goal.x && current.y === goal.y) {
-                    const path = [current];
-                    let curr = current;
-                    while (cameFrom.has(key(curr))) {
-                        curr = cameFrom.get(key(curr));
-                        path.unshift(curr);
-                    }
-                    return path;
-                }
-
-                openSet.splice(currentIdx, 1);
-
-                const neighbors = [
-                    {x: current.x+1, y: current.y},
-                    {x: current.x-1, y: current.y},
-                    {x: current.x, y: current.y+1},
-                    {x: current.x, y: current.y-1}
-                ];
-
-                for (const neighbor of neighbors) {
-                    if (!isWalkable(neighbor.x, neighbor.y)) continue;
-                    const tentativeGScore = gScore.get(key(current)) + 1;
-                    if (!gScore.has(key(neighbor)) || tentativeGScore < gScore.get(key(neighbor))) {
-                        cameFrom.set(key(neighbor), current);
-                        gScore.set(key(neighbor), tentativeGScore);
-                        fScore.set(key(neighbor), tentativeGScore + heuristic(neighbor, goal));
-                        if (!openSet.some(p => p.x === neighbor.x && p.y === neighbor.y)) {
-                            openSet.push(neighbor);
-                        }
+        function drawTerrain() {
+            const gridSize = 5;
+            const renderDist = 80;
+            
+            const startX = Math.floor((camera.pos.x - renderDist) / gridSize) * gridSize;
+            const startZ = Math.floor((camera.pos.z - renderDist) / gridSize) * gridSize;
+            const endX = startX + renderDist * 2;
+            const endZ = startZ + renderDist * 2;
+            
+            const tiles = [];
+            
+            for (let x = startX; x < endX; x += gridSize) {
+                for (let z = startZ; z < endZ; z += gridSize) {
+                    const h1 = worldNoise.getHeight(x, z);
+                    const h2 = worldNoise.getHeight(x + gridSize, z);
+                    const h3 = worldNoise.getHeight(x + gridSize, z + gridSize);
+                    const h4 = worldNoise.getHeight(x, z + gridSize);
+                    const avgH = (h1 + h2 + h3 + h4) / 4;
+                    
+                    const p1 = project3D(new Vec3(x, h1, z));
+                    const p2 = project3D(new Vec3(x + gridSize, h2, z));
+                    const p3 = project3D(new Vec3(x + gridSize, h3, z + gridSize));
+                    const p4 = project3D(new Vec3(x, h4, z + gridSize));
+                    
+                    if (p1 && p2 && p3 && p4) {
+                        const terrain = worldNoise.getTerrain(x, z);
+                        let color = '#00ff41';
+                        if (terrain === 'water') color = '#0088ff';
+                        if (terrain === 'dirt') color = '#664400';
+                        if (terrain === 'stone') color = '#888888';
+                        
+                        tiles.push({
+                            points: [p1, p2, p3, p4],
+                            depth: (p1.depth + p2.depth + p3.depth + p4.depth) / 4,
+                            color
+                        });
                     }
                 }
             }
-            return [];
-        }
-
-        // Rendering
-        function drawTile(gridX, gridY, tileType) {
-            const iso = gridToIso(gridX, gridY);
-            const screenX = canvas.width / 2 + iso.x;
-            const screenY = canvas.height / 2 + iso.y;
-
-            const points = [
-                { x: TILE_SIZE * ISO_X_OFFSET, y: 0 },
-                { x: TILE_SIZE * ISO_X_OFFSET * 2, y: TILE_SIZE * ISO_Y_OFFSET },
-                { x: TILE_SIZE * ISO_X_OFFSET, y: TILE_SIZE * ISO_Y_OFFSET * 2 },
-                { x: 0, y: TILE_SIZE * ISO_Y_OFFSET }
-            ];
-
-            let color = COLORS.green;
-            if (tileType === 1) color = COLORS.water;
-            if (tileType === 2) color = COLORS.stone;
-
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.moveTo(screenX + points[0].x, screenY + points[0].y);
-            for (let i = 1; i < points.length; i++) {
-                ctx.lineTo(screenX + points[i].x, screenY + points[i].y);
-            }
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.strokeStyle = COLORS.green;
-            ctx.lineWidth = 1;
-            ctx.stroke();
-        }
-
-        function drawPlayer() {
-            const iso = gridToIso(gameState.playerPos.x, gameState.playerPos.y);
-            const screenX = canvas.width / 2 + iso.x + TILE_SIZE * ISO_X_OFFSET;
-            const screenY = canvas.height / 2 + iso.y + TILE_SIZE * ISO_Y_OFFSET;
-
-            // Body
-            ctx.fillStyle = COLORS.lime;
-            ctx.fillRect(screenX - 8, screenY - 12, 16, 24);
-
-            // Head
-            ctx.fillStyle = COLORS.green;
-            ctx.beginPath();
-            ctx.arc(screenX, screenY - 16, 8, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Glow
-            ctx.strokeStyle = COLORS.cyan;
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(screenX, screenY - 16, 12, 0, Math.PI * 2);
-            ctx.stroke();
+            
+            tiles.sort((a, b) => a.depth - b.depth);
+            
+            tiles.forEach(tile => {
+                ctx.fillStyle = tile.color;
+                ctx.globalAlpha = 0.7;
+                ctx.beginPath();
+                ctx.moveTo(tile.points[0].x, tile.points[0].y);
+                ctx.lineTo(tile.points[1].x, tile.points[1].y);
+                ctx.lineTo(tile.points[2].x, tile.points[2].y);
+                ctx.lineTo(tile.points[3].x, tile.points[3].y);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.strokeStyle = '#00ff41';
+                ctx.globalAlpha = 0.3;
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            });
         }
 
         function drawNPCs() {
             npcs.forEach(npc => {
-                const iso = gridToIso(npc.pos.x, npc.pos.y);
-                const screenX = canvas.width / 2 + iso.x + TILE_SIZE * ISO_X_OFFSET;
-                const screenY = canvas.height / 2 + iso.y + TILE_SIZE * ISO_Y_OFFSET;
-
-                // Body
-                ctx.fillStyle = COLORS.cyan;
-                ctx.fillRect(screenX - 6, screenY - 12, 12, 20);
-
-                // Head
-                ctx.fillStyle = COLORS.magenta;
-                ctx.beginPath();
-                ctx.arc(screenX, screenY - 16, 6, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Border
-                ctx.strokeStyle = COLORS.magenta;
-                ctx.lineWidth = 2;
-                ctx.strokeRect(screenX - 8, screenY - 14, 16, 22);
+                npc.distToPlayer = camera.pos.dist(npc.pos);
+                const proj = project3D(npc.pos);
+                
+                if (proj && proj.depth > 0) {
+                    const size = 20000 / (proj.depth * proj.depth);
+                    
+                    const isClose = npc.distToPlayer < 15;
+                    const color = isClose ? '#ff10f0' : '#00ffff';
+                    
+                    drawCube(npc.pos, 1, color, proj.depth);
+                    
+                    ctx.fillStyle = color;
+                    ctx.font = '12px monospace';
+                    ctx.fillText(npc.name, proj.x - 20, proj.y - 40);
+                    
+                    if (isClose) {
+                        ctx.strokeStyle = '#ff10f0';
+                        ctx.lineWidth = 2;
+                        ctx.globalAlpha = 0.5;
+                        ctx.beginPath();
+                        ctx.arc(proj.x, proj.y, 30, 0, Math.PI * 2);
+                        ctx.stroke();
+                        ctx.globalAlpha = 1;
+                    }
+                }
             });
         }
 
-        function render() {
-            // Clear
-            ctx.fillStyle = COLORS.bg;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw tiles
-            for (let y = 0; y < MAP_HEIGHT; y++) {
-                for (let x = 0; x < MAP_WIDTH; x++) {
-                    const tileType = tilemap[y * MAP_WIDTH + x];
-                    drawTile(x, y, tileType);
-                }
+        function drawPlayer() {
+            const playerSize = 1.5;
+            const projHead = project3D(camera.pos.add(new Vec3(0, 1.5, 0)));
+            const projBody = project3D(camera.pos.add(new Vec3(0, 0.5, 0)));
+            
+            if (projHead && projBody) {
+                ctx.fillStyle = '#39ff14';
+                ctx.beginPath();
+                ctx.arc(projHead.x, projHead.y, 8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = '#00ff41';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(projHead.x, projHead.y, 12, 0, Math.PI * 2);
+                ctx.stroke();
             }
+        }
 
+        // ============== MINIMAP ==============
+        function drawMinimap() {
+            const mmWidth = minimapCanvas.width;
+            const mmHeight = minimapCanvas.height;
+            const scale = 2;
+            
+            minimapCtx.fillStyle = '#0a0e27';
+            minimapCtx.fillRect(0, 0, mmWidth, mmHeight);
+            
+            minimapCtx.strokeStyle = '#00ff41';
+            minimapCtx.lineWidth = 1;
+            minimapCtx.strokeRect(0, 0, mmWidth, mmHeight);
+            
             // Draw NPCs
-            drawNPCs();
-
+            minimapCtx.fillStyle = '#ff10f0';
+            npcs.forEach(npc => {
+                const x = (npc.pos.x / 100) * mmWidth;
+                const y = (npc.pos.z / 100) * mmHeight;
+                minimapCtx.fillRect(x - 2, y - 2, 4, 4);
+            });
+            
             // Draw player
-            drawPlayer();
-
-            requestAnimationFrame(render);
+            minimapCtx.fillStyle = '#00ff41';
+            const px = (camera.pos.x / 100) * mmWidth;
+            const py = (camera.pos.z / 100) * mmHeight;
+            minimapCtx.fillRect(px - 3, py - 3, 6, 6);
+            
+            // Draw direction
+            const forward = camera.getForward();
+            minimapCtx.strokeStyle = '#00ff41';
+            minimapCtx.lineWidth = 2;
+            minimapCtx.beginPath();
+            minimapCtx.moveTo(px, py);
+            minimapCtx.lineTo(px + forward.x * 10, py + forward.z * 10);
+            minimapCtx.stroke();
         }
 
-        // Click/Touch Input
-        function screenToGrid(screenX, screenY) {
-            const relX = screenX - canvas.width / 2;
-            const relY = screenY - canvas.height / 2;
-            return isoToGrid(relX, relY);
+        // ============== INTERACTION ==============
+        function checkNPCProximity() {
+            npcs.forEach(npc => {
+                const dist = camera.pos.dist(npc.pos);
+                if (dist < 10 && !gameState.challengeActive && !npc.active) {
+                    npc.active = true;
+                    showChallenge(npc);
+                }
+            });
         }
-
-        function onCanvasClick(event) {
-            if (gameState.challengeActive) return;
-
-            const rect = canvas.getBoundingClientRect();
-            const screenX = event.clientX - rect.left;
-            const screenY = event.clientY - rect.top;
-
-            const grid = screenToGrid(screenX, screenY);
-            grid.x = Math.max(0, Math.min(MAP_WIDTH - 1, grid.x));
-            grid.y = Math.max(0, Math.min(MAP_HEIGHT - 1, grid.y));
-
-            const npcKey = grid.x + ',' + grid.y;
-            if (npcMap.hasOwnProperty(npcKey)) {
-                showChallenge(npcMap[npcKey]);
-                return;
-            }
-
-            if (isWalkable(grid.x, grid.y)) {
-                const path = findPath(gameState.playerPos, {x: grid.x, y: grid.y});
-                gameState.pathQueue = path.slice(1);
-            }
-        }
-
-        canvas.addEventListener('click', onCanvasClick);
-        canvas.addEventListener('touchstart', (e) => {
-            const touch = e.touches[0];
-            const clickEvent = new MouseEvent('click', { clientX: touch.clientX, clientY: touch.clientY });
-            canvas.dispatchEvent(clickEvent);
-        });
-
-        // Challenge System
-        const challengePool = [
-            { title: 'AUTHENTICATE', question: 'MFA does NOT include?', options: ['Know', 'Remember', 'Have', 'Are'], correct: 1 },
-            { title: 'NETWORK SCAN', question: 'NMAP = ?', options: ['Network Mapper', 'Monitor', 'Map', 'Manager'], correct: 0 },
-            { title: 'VULNERABILITY', question: 'XSS exploits?', options: ['Client validation', 'Firewall', 'Latency', 'Crypto'], correct: 0 },
-            { title: 'FORENSICS', question: 'Honeypot purpose?', options: ['Attract', 'Encrypt', 'Speed', 'Validate'], correct: 0 },
-            { title: 'CIPHER TEXT', question: 'DES is?', options: ['Deprecated', 'Modern', 'Standard', 'Advanced'], correct: 0 },
-            { title: 'INTRUSION', question: 'IDS vs IPS?', options: ['Detect only', 'Block only', 'Manual', 'Offline'], correct: 0 },
-            { title: 'MALWARE', question: 'Self-replicating?', options: ['Virus', 'Trojan', 'Rootkit', 'Ransomware'], correct: 0 },
-            { title: 'DATA BREACH', question: 'Main cause?', options: ['Phishing', 'Disaster', 'Hardware', 'Radiation'], correct: 0 }
-        ];
 
         function showChallenge(npc) {
-            const challenge = challengePool[Math.floor(Math.random() * challengePool.length)];
-
+            const challenge = challenges[Math.floor(Math.random() * challenges.length)];
             gameState.currentChallenge = { ...challenge, npc };
             gameState.selectedOption = null;
             gameState.challengeActive = true;
-
-            document.getElementById('challengeTitle').textContent = challenge.title;
+            
+            document.getElementById('challengeTitle').textContent = challenge.title + ' (' + npc.name + ')';
             document.getElementById('challengeText').textContent = challenge.question;
-
+            
             const optionsGroup = document.getElementById('optionsGroup');
             optionsGroup.innerHTML = '';
             challenge.options.forEach((opt, idx) => {
@@ -363,31 +468,32 @@
                 label.addEventListener('change', () => { gameState.selectedOption = idx; });
                 optionsGroup.appendChild(label);
             });
-
+            
             document.getElementById('modalBackdrop').classList.add('active');
             gameState.challengeTime = 60;
             gameState.challengeStart = Date.now();
         }
 
         function submitChallenge() {
-            if (gameState.selectedOption === null) return;
-
+            if (gameState.selectedOption === null) {
+                showToast('SELECT OPTION', 'failure');
+                return;
+            }
+            
             const isCorrect = gameState.selectedOption === gameState.currentChallenge.correct;
             gameState.totalAttempts++;
-
+            
             if (isCorrect) {
                 gameState.correctAnswers++;
-                gameState.npcsMet++;
-                const points = Math.floor(10 * gameState.difficulty);
-                gameState.score += points;
-                gameState.difficulty += 0.2;
-                showToast(`+${points} POINTS`, 'success');
+                gameState.systemsMet++;
+                gameState.score += 50;
+                gameState.currentChallenge.npc.active = false;
+                showToast('+50 POINTS', 'success');
             } else {
-                gameState.score = Math.max(0, gameState.score - 5);
-                showToast('INCORRECT -5', 'failure');
+                gameState.score = Math.max(0, gameState.score - 10);
+                showToast('-10 POINTS', 'failure');
             }
-
-            updateHUD();
+            
             closeChallenge();
         }
 
@@ -404,67 +510,85 @@
             setTimeout(() => toast.remove(), 2000);
         }
 
+        // ============== UPDATE ==============
+        function updateCamera() {
+            const speed = 40; // units per second
+            const forward = camera.getForward();
+            const right = camera.getRight();
+            
+            if (keys['w']) camera.pos = camera.pos.add(forward.mul(speed * 0.016));
+            if (keys['s']) camera.pos = camera.pos.add(forward.mul(-speed * 0.016));
+            if (keys['d']) camera.pos = camera.pos.add(right.mul(speed * 0.016));
+            if (keys['a']) camera.pos = camera.pos.add(right.mul(-speed * 0.016));
+            if (keys[' ']) camera.pos.y += speed * 0.016;
+            if (keys['c']) camera.pos.y -= speed * 0.016;
+            
+            // Clamp position
+            camera.pos.x = Math.max(0, Math.min(100, camera.pos.x));
+            camera.pos.z = Math.max(0, Math.min(100, camera.pos.z));
+            camera.pos.y = Math.max(-5, Math.min(20, camera.pos.y));
+            
+            // Update euler with mouse
+            camera.euler.y += mouse.dx;
+            camera.euler.x += mouse.dy;
+            camera.euler.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, camera.euler.x));
+            mouse.dx = 0;
+            mouse.dy = 0;
+            
+            // Calculate speed for HUD
+            gameState.playerSpeed = (speed * 0.016);
+        }
+
         function updateHUD() {
+            document.getElementById('posDisplay').textContent = 
+                camera.pos.x.toFixed(1) + ', ' + 
+                camera.pos.y.toFixed(1) + ', ' + 
+                camera.pos.z.toFixed(1);
             document.getElementById('scoreDisplay').textContent = gameState.score;
-            document.getElementById('difficultyDisplay').textContent = gameState.difficulty.toFixed(1) + 'x';
-            document.getElementById('npcDisplay').textContent = gameState.npcsMet + '/6';
-            const acc = gameState.totalAttempts > 0 ? Math.round(gameState.correctAnswers / gameState.totalAttempts * 100) : 0;
-            document.getElementById('accuracyDisplay').textContent = acc + '%';
+            document.getElementById('systemsDisplay').textContent = gameState.systemsMet + '/8';
+            document.getElementById('speedDisplay').textContent = (gameState.playerSpeed * 1000).toFixed(0);
+        }
+
+        // ============== RENDER LOOP ==============
+        function render() {
+            ctx.fillStyle = '#0a0e27';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            drawTerrain();
+            drawNPCs();
+            drawPlayer();
+            
+            // Debug info
+            ctx.fillStyle = '#00ff41';
+            ctx.font = '12px monospace';
+            ctx.fillText('FPS: ' + Math.round(1000/16), canvas.width - 120, 30);
+        }
+
+        function gameLoop() {
+            updateCamera();
+            checkNPCProximity();
+            updateHUD();
+            drawMinimap();
+            render();
+            
+            if (gameState.challengeActive) {
+                const elapsed = (Date.now() - gameState.challengeStart) / 1000;
+                const timeLeft = Math.max(0, 60 - elapsed);
+                const progress = timeLeft / 60;
+                document.getElementById('timerFill').style.width = (progress * 100) + '%';
+                
+                if (timeLeft <= 0) {
+                    closeChallenge();
+                }
+            }
+            
+            requestAnimationFrame(gameLoop);
         }
 
         document.getElementById('submitBtn').addEventListener('click', submitChallenge);
         document.getElementById('cancelBtn').addEventListener('click', closeChallenge);
 
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-
-        // Player Movement
-        function updatePlayer(dt) {
-            if (gameState.pathQueue.length === 0) return;
-
-            const next = gameState.pathQueue[0];
-            const dx = next.x - gameState.playerPos.x;
-            const dy = next.y - gameState.playerPos.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            const moveAmount = PLAYER_SPEED * dt;
-
-            if (dist <= moveAmount / 100) {
-                gameState.playerPos = next;
-                gameState.pathQueue.shift();
-            } else {
-                gameState.playerPos.x += (dx / dist) * moveAmount / 100;
-                gameState.playerPos.y += (dy / dist) * moveAmount / 100;
-            }
-        }
-
-        // Game Loop
-        function gameLoop() {
-            const now = Date.now();
-            const dt = (now - lastTime) / 1000;
-            lastTime = now;
-
-            updatePlayer(dt);
-
-            if (gameState.challengeActive) {
-                const elapsed = (Date.now() - gameState.challengeStart) / 1000;
-                gameState.challengeTime = Math.max(0, 60 - elapsed);
-                const progress = gameState.challengeTime / 60;
-                document.getElementById('timerFill').style.width = (progress * 100) + '%';
-
-                if (gameState.challengeTime <= 0) {
-                    closeChallenge();
-                }
-            }
-
-            updateHUD();
-        }
-
-        // Init
-        initTilemap();
-        render();
-        setInterval(gameLoop, 1000 / 60);
+        gameLoop();
     </script>
 </body>
 </html>
