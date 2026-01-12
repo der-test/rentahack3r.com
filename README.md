@@ -174,23 +174,35 @@ For inquiries about this mock project, you can imagine reaching us at a fictiona
 **Remember: This is satire. Don't break the law. Have fun.**
 
 <script>
-const toggle = document.getElementById('table-distort-toggle');
-const tables = document.querySelectorAll('table');
-
-toggle.addEventListener('change', function() {
-  tables.forEach(table => {
-    if (this.checked) {
-      table.classList.add('distortion-active');
-    } else {
-      table.classList.remove('distortion-active');
-    }
+document.addEventListener('DOMContentLoaded', function() {
+  const toggle = document.getElementById('table-distort-toggle');
+  
+  if (!toggle) return; // Exit if toggle doesn't exist
+  
+  const getTables = () => document.querySelectorAll('table');
+  
+  // Function to update table animation
+  const updateTableAnimation = (enabled) => {
+    const tables = getTables();
+    tables.forEach(table => {
+      if (enabled) {
+        table.classList.add('distortion-active');
+      } else {
+        table.classList.remove('distortion-active');
+      }
+    });
+  };
+  
+  // Restore previous state
+  const savedState = localStorage.getItem('tableDistortionEnabled') === 'true';
+  toggle.checked = savedState;
+  updateTableAnimation(savedState);
+  
+  // Listen for toggle changes
+  toggle.addEventListener('change', function() {
+    const isEnabled = this.checked;
+    updateTableAnimation(isEnabled);
+    localStorage.setItem('tableDistortionEnabled', isEnabled);
   });
-  localStorage.setItem('tableDistortionEnabled', this.checked);
 });
-
-// Restore previous state on page load
-if (localStorage.getItem('tableDistortionEnabled') === 'true') {
-  toggle.checked = true;
-  tables.forEach(table => table.classList.add('distortion-active'));
-}
 </script>
