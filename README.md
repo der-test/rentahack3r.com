@@ -155,6 +155,14 @@ For inquiries about this mock project, you can imagine reaching us at a fictiona
 
 ---
 
+<div class="chaos-control">
+  <label for="table-distort-toggle" class="toggle-label">⚡ TABLE DISTORTION MODE</label>
+  <input type="checkbox" id="table-distort-toggle" class="toggle-switch">
+  <span class="toggle-slider"></span>
+</div>
+
+---
+
 ```
 ╔════════════════════════════════════════╗
 ║  [END TRANSMISSION]                    ║
@@ -164,3 +172,25 @@ For inquiries about this mock project, you can imagine reaching us at a fictiona
 ```
 
 **Remember: This is satire. Don't break the law. Have fun.**
+
+<script>
+const toggle = document.getElementById('table-distort-toggle');
+const tables = document.querySelectorAll('table');
+
+toggle.addEventListener('change', function() {
+  tables.forEach(table => {
+    if (this.checked) {
+      table.classList.add('distortion-active');
+    } else {
+      table.classList.remove('distortion-active');
+    }
+  });
+  localStorage.setItem('tableDistortionEnabled', this.checked);
+});
+
+// Restore previous state on page load
+if (localStorage.getItem('tableDistortionEnabled') === 'true') {
+  toggle.checked = true;
+  tables.forEach(table => table.classList.add('distortion-active'));
+}
+</script>
