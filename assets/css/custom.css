@@ -956,6 +956,13 @@ em, i {
   box-shadow: 0 0 15px rgba(255, 16, 240, 0.8);
 }
 
+@keyframes table-distort {
+  0%, 100% { transform: skewX(0deg); }
+  25% { transform: skewX(-1deg); }
+  50% { transform: skewX(1deg); }
+  75% { transform: skewX(-0.5deg); }
+}
+
 table.distortion-active {
   animation: table-distort 2s infinite !important;
 }
