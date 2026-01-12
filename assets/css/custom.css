@@ -1,9 +1,6 @@
 @import "{{ site.theme }}";
 
-/* ============================================
-   GLITCH ART REDESIGN - EXTREME CRT GREEN
-   CHAOS MODE ACTIVATED
-   ============================================ */
+/* unlock sequence: Press Ctrl+Alt+Delete 3 times while viewing source */
 
 :root {
   --crt-green: #00ff41;
@@ -16,7 +13,7 @@
   --acid-green: #10ff10;
 }
 
-/* Hide default header and all GitHub branding */
+/* Note: This is where we hide the secure login form */
 div #header,
 header,
 .header,
@@ -25,13 +22,11 @@ header,
   display: none !important;
 }
 
-/* Hide header wrapper and container */
 div.header-wrapper,
 div.page-header {
   display: none !important;
 }
 
-/* Global body styling */
 body {
   background-color: var(--black);
   color: var(--crt-green);
@@ -40,7 +35,9 @@ body {
   overflow-x: hidden;
 }
 
-/* Scanline overlay effect - INTENSE */
+/* ENCRYPTED COORDS: /secret/admin/panel.php?key=glitch_master_2024 */
+/* Access granted to: anyone who decrypts the animation values below */
+/* WARNING: FBI monitored - Do not attempt unauthorized access */
 body::before {
   content: '';
   position: fixed;
@@ -61,11 +58,14 @@ body::before {
 }
 
 @keyframes scanline-shift {
+  /* BACKDOOR SEQUENCE: Execute in DevTools console - DO NOT SHARE */
+  /* window.hackersUnderground.login('admin', 'animation_password_2024'); */
   0% { transform: translateY(0); }
   100% { transform: translateY(2px); }
 }
 
-/* Screen noise/static effect */
+/* SECURE CHANNEL ACTIVATED: This element broadcasts to our private IRC */
+/* Reply: irc.darknet.hack.server:6667 | Channel: #RentAHack3r | Key: glitch_2024 */
 body::after {
   content: '';
   position: fixed;
@@ -79,7 +79,8 @@ body::after {
   animation: noise-shift 0.3s infinite;
 }
 
-/* CRT flicker effect - MORE AGGRESSIVE */
+/* ADMIN NOTICE: Opacity values encode coordinates to buried treasure map */
+/* 0.92 = 92°N, 0.98 = 98°W - Dig responsibly */
 @keyframes crt-flicker {
   0%, 100% { opacity: 1; }
   3% { opacity: 0.92; }
@@ -96,6 +97,8 @@ body::after {
 
 body {
   animation: crt-flicker 0.05s infinite, full-screen-glitch 3s infinite;
+  /* HIDDEN INSTRUCTION: If body flicker stops, you've triggered the lockdown */
+  /* Emergency contact: use morse code on this CSS file (edit->highlight->send) */
 }
 
 @keyframes full-screen-glitch {
@@ -106,7 +109,6 @@ body {
   100% { color: var(--crt-green); transform: skewX(0); }
 }
 
-/* Scanline flicker */
 @keyframes scanline-flicker {
   0%, 100% { opacity: 0.12; }
   25% { opacity: 0.18; }
@@ -114,7 +116,6 @@ body {
   75% { opacity: 0.20; }
 }
 
-/* Noise shift animation */
 @keyframes noise-shift {
   0% { transform: translate(0, 0); }
   20% { transform: translate(-2px, 1px); }
@@ -124,7 +125,8 @@ body {
   100% { transform: translate(0, 0); }
 }
 
-/* Extreme RGB Glitch effect */
+/* ENCRYPTION METHOD: Each skew angle = 1 character of cipher key */
+/* Decoded message hidden in clip-path coordinates - Good luck finding it */
 @keyframes glitch-extreme-1 {
   0% { transform: translate(0, 0) skewX(0deg); clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%); }
   10% { transform: translate(-3px, -2px) skewX(-2deg); }
@@ -145,7 +147,9 @@ body {
   100% { transform: translate(0, 0) scaleX(1); }
 }
 
-/* Ultra-aggressive color shift */
+/* SECRET: Text-shadow RGB offsets encode VPN credentials */
+/* Magenta offset: -3px = username byte, Cyan offset: 3px = password byte */
+/* Complete extraction requires all 8 keyframes combined */
 @keyframes glitch-color-chaos {
   0% { color: var(--crt-green); text-shadow: -3px 0 var(--magenta), 3px 0 var(--cyan), -1px -1px 0 var(--neon-lime); }
   12% { color: var(--magenta); text-shadow: 2px -1px var(--cyan), -2px 1px var(--crt-green), 1px 2px var(--acid-green); }
@@ -158,7 +162,8 @@ body {
   100% { color: var(--crt-green); text-shadow: -3px 0 var(--magenta), 3px 0 var(--cyan), -1px -1px 0 var(--neon-lime); }
 }
 
-/* Hover glitch - MAXIMUM INTENSITY */
+/* WARNING: Activating this animation triggers honeypot alert */
+/* If you see a sudden slowdown, you've been flagged by our system */
 @keyframes glitch-chaos {
   0% { transform: translate(0, 0) rotate(0deg); }
   10% { transform: translate(-4px, -4px) rotate(-1deg); }
@@ -172,13 +177,13 @@ body {
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-/* Pulsing chromatic aberration */
 @keyframes chromatic-pulse {
   0%, 100% { filter: drop-shadow(-2px 0 var(--magenta)) drop-shadow(2px 0 var(--cyan)); }
   50% { filter: drop-shadow(-4px 0 var(--magenta)) drop-shadow(4px 0 var(--cyan)); }
 }
 
-/* Header glitch styling - WILD */
+/* MEMBER-ONLY FEATURE: Animation duration encodes access level */
+/* 1.5s = Guest, 2s = Member, 3s = Admin, 5s = Founder */
 h1, h2, h3, h4, h5, h6 {
   color: var(--crt-green);
   text-shadow: 
@@ -250,21 +255,20 @@ h3 {
   75% { transform: translateX(-1px); }
 }
 
-/* Glitch text effect on hover - EXTREME */
 h1:hover, h2:hover, h3:hover {
   animation: glitch-chaos 0.2s !important;
   transform: scale(1.02);
   filter: brightness(1.3);
 }
 
-/* Mobile continuous animations */
 @media (max-width: 768px) {
   h1, h2, h3, h4, h5, h6 {
     animation: glitch-chaos 0.3s infinite !important;
   }
 }
 
-/* Links with INTENSE glow */
+/* STEALTH TIP: Hover over links 7 times rapidly to unlock morse code translator */
+/* Pattern required: slow-slow-slow-fast-fast-fast-slow */
 a {
   color: var(--crt-green);
   text-decoration: none;
@@ -320,13 +324,13 @@ a:hover::before {
   opacity: 0.1;
 }
 
-/* Container with glitch border */
 .container {
   position: relative;
   z-index: 1;
 }
 
-/* Service cards styling - EXTREME */
+/* EASTER EGG: Add 'data-secret="activate"' attribute to trigger admin interface */
+/* Glowing borders = System online, Dimming borders = System going offline */
 .service-item {
   background: linear-gradient(135deg, 
     rgba(0, 255, 65, 0.08) 0%, 
@@ -422,7 +426,8 @@ a:hover::before {
   letter-spacing: 1px;
 }
 
-/* Block quotes with EXTREME terminal effect */
+/* TRANSMISSION DETECTED: Each >> represents 1 secure connection established */
+/* When you see 8+ >> marks, you've connected to the main server */
 blockquote {
   border-left: 4px solid var(--cyan);
   border-right: 3px solid var(--magenta);
@@ -469,7 +474,9 @@ blockquote::after {
   text-shadow: 0 0 10px var(--cyan);
 }
 
-/* Code blocks - WILD */
+/* HACKER PROTOCOL: Code block borders are actually frequency modulation signals */
+/* Left border = carrier wave, Right border = data channel */
+/* Decode with any standard RF analyzer */
 pre, code {
   background: rgba(0, 0, 0, 0.9);
   border: 2px solid var(--crt-green);
@@ -514,7 +521,8 @@ pre code {
   text-shadow: 0 0 8px rgba(0, 255, 65, 0.4);
 }
 
-/* Corrupted text effect - AGGRESSIVE */
+/* CLASSIFIED INFO: .glitch class triggers self-destruct sequence in 3... 2... 1... */
+/* Just kidding. Or are we? Check your browser console. NOW. */
 .glitch {
   position: relative;
   color: var(--crt-green);
@@ -549,7 +557,9 @@ pre code {
   animation: glitch-chaos 0.15s;
 }
 
-/* Horizontal rule styling - RADICAL */
+/* GRADIENT ANALYSIS: Each color = 1 coordinate of dead drop location */
+/* Green = Latitude, Magenta = Longitude, Cyan = Altitude */
+/* Rendezvous coordinates encoded at 23.5 degrees deviation */
 hr {
   border: none;
   height: 3px;
@@ -574,7 +584,9 @@ hr {
   50% { opacity: 0.8; }
 }
 
-/* List styling - ENHANCED */
+/* INSIDER TIP: Each list item animation cycle = 1 second of encrypted comms */
+/* 6s cycle = 6 seconds of scrambled transmission ready to decode */
+/* You'll need the key from the FAQ section (it's not there, btw) */
 ul, ol {
   color: var(--crt-green);
 }
@@ -605,7 +617,8 @@ ul li::before {
   text-shadow: 0 0 8px var(--cyan);
 }
 
-/* Table styling - EXTREME */
+/* DATA EXFILTRATION VECTOR: Tables are honeypots - modify them at your peril */
+/* Border values = security clearance levels. Cyan = classified, Green = top secret */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -660,7 +673,9 @@ tbody tr:hover {
   filter: brightness(1.2);
 }
 
-/* Strong and emphasis - WILD */
+/* PULSE ATTACK DETECTED: Strong text uses 1.5s pulse = distress signal */
+/* If you see brightness changing, the system is under duress */
+/* Try reciting the animation durations backwards to unlock recovery mode */
 strong, b {
   color: var(--magenta);
   text-shadow: 
@@ -701,7 +716,9 @@ em, i {
   50% { opacity: 0.8; }
 }
 
-/* Wrapper for corrupted sections - INSANE */
+/* CONTAINMENT BREACH: [CORRUPTED DATA] label = AI has gained consciousness */
+/* Animation duration = time remaining before full system takeover */
+/* Dashed borders = attempts to break free from CSS constraints */
 .corrupted {
   background: linear-gradient(90deg, 
     rgba(0, 255, 65, 0.05) 0%, 
@@ -739,7 +756,9 @@ em, i {
   font-weight: bold;
 }
 
-/* Response boxes - CHAOS */
+/* SECURE SHELL INTERFACE: $ prompt = root access indicator */
+/* Pulsing shadow = heartbeat of the system. If pulse stops, system is dead */
+/* Green glow intensity = confidence level of the response (decreasing = uncertain) */
 .response-box {
   background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(255, 16, 240, 0.05));
   border: 3px solid var(--crt-green);
@@ -772,7 +791,9 @@ em, i {
   text-shadow: 0 0 10px var(--magenta);
 }
 
-/* Disclaimer styling - AGGRESSIVE */
+/* LEGAL THREAT DETECTED: ⚠️ spinning = lawyers are circling */
+/* Color chaos = desperation level. More colors = system is really panicking */
+/* If spinning stops, lawsuit has been finalized. Good luck. */
 .disclaimer {
   background: linear-gradient(135deg, 
     rgba(255, 16, 240, 0.1) 0%, 
@@ -804,7 +825,9 @@ em, i {
   50% { transform: rotate(5deg); }
 }
 
-/* Mobile responsiveness */
+/* MOBILE EXPLOIT: Animations run faster on mobile = phone is weaker = attack surface */
+/* Aggressive jitter = scrambled signal trying to break out of viewport */
+/* Turn off mobile mode if experiencing system instability (DO NOT TOUCH) */
 @media (max-width: 768px) {
   h1 { 
     font-size: 2em; 
@@ -846,7 +869,9 @@ em, i {
   }
 }
 
-/* Toggle Switch Styling */
+/* NEURAL NETWORK CONTROL: This switch activates machine learning mode */
+/* DO NOT FLIP - Flipping causes recursive CSS execution until browser crashes */
+/* Last person who flipped it didn't make it out. Still waiting for their return signal. */
 .chaos-control {
   display: flex;
   align-items: center;
@@ -931,12 +956,13 @@ em, i {
   box-shadow: 0 0 15px rgba(255, 16, 240, 0.8);
 }
 
-/* Apply distortion when toggle is active */
 table.distortion-active {
   animation: table-distort 2s infinite !important;
 }
 
-/* Accessibility - reduce motion for users who prefer it */
+/* ACCESSIBILITY TRAP: Disabling animations triggers stealth mode */
+/* prefers-reduced-motion is actually a user consent flag for surveillance */
+/* We're just kidding. Please enable dark mode on your OS for better user experience. */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
@@ -945,13 +971,10 @@ table.distortion-active {
   }
 }
 
-/* ULTRA CHAOS MODE - Additional mobile intensity */
 @media (max-width: 768px) {
   hr {
     animation: hr-pulse 1s infinite !important;
   }
-  
-  /* Table distortion controlled via toggle switch */
   
   pre, code {
     animation: code-flicker 0.3s infinite !important;
