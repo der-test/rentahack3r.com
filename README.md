@@ -3,6 +3,24 @@
 
 Welcome to Rent a Hack3r, where your wildest hacker dreams come true!
 
+<div class="hacked-popup">
+  <div class="popup-header">
+    ⚠️ CRITICAL ALERT ⚠️
+  </div>
+  <div class="popup-content">
+    <div class="popup-line">WARNING: UNAUTHORIZED ACCESS DETECTED</div>
+    <div class="popup-line">🔓 SYSTEM COMPROMISED</div>
+    <div class="popup-line" style="margin-top: 8px;">$ root access granted</div>
+    <div class="popup-line">$ /bin/hack --all --now</div>
+    <div class="popup-line" style="color: #ff10f0; margin-top: 8px;">> EXECUTING...</div>
+  </div>
+  <div class="popup-footer">
+    <button class="popup-btn close-btn">CLOSE</button>
+    <button class="popup-btn ignore-btn">IGNORE</button>
+    <button class="popup-btn panic-btn">PANIC</button>
+  </div>
+</div>
+
 ---
 
 <a name="services"></a>
@@ -201,4 +219,82 @@ document.addEventListener('DOMContentLoaded', function() {
     localStorage.setItem('glitchChaosEnabled', isEnabled);
   });
 });
+
+// Hacked Popup Random Movement
+(function() {
+  let moveInterval;
+  
+  function movePopup() {
+    const popup = document.querySelector('.hacked-popup');
+    if (!popup || popup.classList.contains('hidden')) return;
+    
+    const maxX = window.innerWidth - popup.offsetWidth - 20;
+    const maxY = window.innerHeight - popup.offsetHeight - 20;
+    
+    const randomX = Math.max(10, Math.random() * maxX);
+    const randomY = Math.max(10, Math.random() * maxY);
+    
+    popup.style.left = randomX + 'px';
+    popup.style.top = randomY + 'px';
+  }
+  
+  function showMessage(type) {
+    const popup = document.querySelector('.hacked-popup');
+    popup.classList.add('hidden');
+    
+    const messages = {
+      close: { text: '$ connection --closed\n> ESCAPED SUCCESSFULLY\n⚡ THREAT NEUTRALIZED', class: 'message-close' },
+      ignore: { text: '⚠️ THREAT IGNORED\n$ /bin/hack --continue\n> STILL WATCHING...', class: 'message-ignore' },
+      panic: { text: '🚨 PANIC MODE ACTIVATED 🚨\n$ EMERGENCY PROTOCOL\n>> MAXIMUM CHAOS <<', class: 'message-panic' }
+    };
+    
+    const msg = messages[type];
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'hack-message';
+    messageDiv.innerHTML = `<div class="hack-message-text ${msg.class}">${msg.text}</div>`;
+    
+    document.body.appendChild(messageDiv);
+    
+    // Clear message and show popup again after 5 seconds
+    setTimeout(function() {
+      messageDiv.remove();
+      popup.classList.remove('hidden');
+      movePopup();
+      // Restart the movement interval
+      clearInterval(moveInterval);
+      moveInterval = setInterval(movePopup, 5000);
+    }, 5000);
+  }
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    const popup = document.querySelector('.hacked-popup');
+    const closeBtn = document.querySelector('.close-btn');
+    const ignoreBtn = document.querySelector('.ignore-btn');
+    const panicBtn = document.querySelector('.panic-btn');
+    
+    if (!popup) return;
+    
+    // Position popup initially
+    movePopup();
+    
+    // Start movement interval
+    moveInterval = setInterval(movePopup, 5000);
+    
+    // Button click handlers
+    closeBtn.addEventListener('click', function() {
+      clearInterval(moveInterval);
+      showMessage('close');
+    });
+    
+    ignoreBtn.addEventListener('click', function() {
+      clearInterval(moveInterval);
+      showMessage('ignore');
+    });
+    
+    panicBtn.addEventListener('click', function() {
+      clearInterval(moveInterval);
+      showMessage('panic');
+    });
+  });
+})();
 </script>

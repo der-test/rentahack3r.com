@@ -13,6 +13,236 @@
   --acid-green: #10ff10;
 }
 
+/* Hacked Popup Styling */
+.hacked-popup {
+  position: fixed;
+  width: 340px;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(255, 16, 240, 0.1));
+  border: 3px solid var(--magenta);
+  border-left: 5px solid var(--cyan);
+  border-right: 5px solid var(--magenta);
+  border-top: 3px dashed var(--crt-green);
+  border-bottom: 3px dashed var(--crt-green);
+  border-radius: 8px;
+  box-shadow: 
+    0 0 30px rgba(255, 16, 240, 0.6),
+    0 0 60px rgba(0, 255, 255, 0.3),
+    inset 0 0 20px rgba(0, 255, 65, 0.1);
+  z-index: 10000;
+  padding: 0;
+  animation: popup-float 0.5s ease-out, popup-glow 2s infinite;
+  font-family: 'Courier New', monospace;
+  transition: all 0.4s ease-out;
+}
+
+@keyframes popup-float {
+  0% { 
+    opacity: 0;
+    transform: scale(0.5) rotate(-5deg);
+  }
+  100% { 
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes popup-glow {
+  0%, 100% { 
+    box-shadow: 0 0 30px rgba(255, 16, 240, 0.6), 0 0 60px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(0, 255, 65, 0.1);
+  }
+  50% { 
+    box-shadow: 0 0 50px rgba(255, 16, 240, 0.8), 0 0 80px rgba(0, 255, 255, 0.5), inset 0 0 30px rgba(0, 255, 65, 0.2);
+  }
+}
+
+.popup-header {
+  background: linear-gradient(90deg, var(--magenta), var(--cyan));
+  color: var(--black);
+  padding: 12px 15px;
+  font-weight: bold;
+  font-size: 1.1em;
+  letter-spacing: 2px;
+  text-align: center;
+  border-bottom: 2px solid var(--magenta);
+  animation: header-pulse 1.5s infinite;
+}
+
+@keyframes header-pulse {
+  0%, 100% { 
+    background: linear-gradient(90deg, var(--magenta), var(--cyan));
+    text-shadow: none;
+  }
+  50% { 
+    background: linear-gradient(90deg, var(--cyan), var(--magenta));
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+  }
+}
+
+.popup-content {
+  padding: 15px;
+  color: var(--crt-green);
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+  font-size: 0.9em;
+  line-height: 1.6;
+  border-bottom: 2px dashed var(--cyan);
+}
+
+.popup-line {
+  margin: 5px 0;
+  animation: line-flicker 0.6s infinite;
+}
+
+@keyframes line-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.popup-line:nth-child(odd) {
+  animation: line-flicker 0.7s infinite;
+}
+
+.popup-line:nth-child(even) {
+  animation: line-flicker 0.5s infinite;
+  color: var(--cyan);
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+}
+
+.popup-footer {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 10px 15px;
+  text-align: center;
+  color: var(--magenta);
+  font-size: 0.85em;
+  letter-spacing: 1px;
+  border-top: 2px solid var(--magenta);
+  animation: footer-glow 1.5s infinite;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.popup-btn {
+  background: linear-gradient(135deg, rgba(0, 255, 65, 0.2), rgba(255, 16, 240, 0.2));
+  color: var(--crt-green);
+  border: 2px solid var(--crt-green);
+  padding: 6px 12px;
+  font-size: 0.75em;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+  box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
+  animation: button-pulse 1.5s infinite;
+}
+
+@keyframes button-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(0, 255, 65, 0.3); }
+  50% { box-shadow: 0 0 15px rgba(0, 255, 65, 0.6); }
+}
+
+.popup-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 255, 65, 0.4), rgba(255, 16, 240, 0.4));
+  border-color: var(--magenta);
+  color: var(--magenta);
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(255, 16, 240, 0.6), 0 0 10px var(--crt-green);
+}
+
+.close-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.6), 0 0 10px var(--crt-green);
+}
+
+.ignore-btn:hover {
+  border-color: var(--neon-lime);
+  color: var(--neon-lime);
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.6), 0 0 10px var(--crt-green);
+}
+
+.panic-btn:hover {
+  border-color: var(--magenta);
+  color: var(--magenta);
+  box-shadow: 0 0 20px rgba(255, 16, 240, 0.8), 0 0 10px var(--crt-green);
+}
+
+/* Popup hidden state */
+.hacked-popup.hidden {
+  display: none;
+}
+
+/* Message display */
+.hack-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.98), rgba(255, 16, 240, 0.15));
+  border: 4px solid var(--magenta);
+  border-left: 6px solid var(--cyan);
+  border-right: 6px solid var(--magenta);
+  padding: 40px 60px;
+  z-index: 10001;
+  text-align: center;
+  box-shadow: 
+    0 0 40px rgba(255, 16, 240, 0.8),
+    0 0 80px rgba(0, 255, 255, 0.5);
+  border-radius: 4px;
+  animation: message-appear 0.3s ease-out;
+}
+
+@keyframes message-appear {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3) rotate(-10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(0);
+  }
+}
+
+.hack-message-text {
+  font-family: 'Courier New', monospace;
+  font-size: 1.3em;
+  font-weight: bold;
+  letter-spacing: 2px;
+  line-height: 1.8;
+  animation: message-flicker 0.4s infinite;
+}
+
+@keyframes message-flicker {
+  0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--magenta); }
+  50% { opacity: 0.8; text-shadow: 0 0 20px var(--magenta), 0 0 10px var(--cyan); }
+}
+
+.message-close {
+  color: var(--magenta);
+}
+
+.message-ignore {
+  color: var(--neon-lime);
+}
+
+.message-panic {
+  color: var(--magenta);
+  text-shadow: 0 0 20px var(--magenta), 0 0 30px var(--cyan);
+  animation: message-flicker 0.2s infinite;
+}
+
+@keyframes footer-glow {
+  0%, 100% { 
+    background: rgba(0, 0, 0, 0.6);
+    color: var(--magenta);
+  }
+  50% { 
+    background: rgba(255, 16, 240, 0.15);
+    color: var(--cyan);
+    text-shadow: 0 0 8px var(--magenta);
+  }
+}
+
 /* Note: This is where we hide the secure login form */
 div #header,
 header,
