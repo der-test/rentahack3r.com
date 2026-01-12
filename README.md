@@ -255,15 +255,18 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.body.appendChild(messageDiv);
     
-    // Clear message and show popup again after 5 seconds
+    // Clear message and show popup again after 2 seconds
     setTimeout(function() {
       messageDiv.remove();
       popup.classList.remove('hidden');
-      movePopup();
-      // Restart the movement interval
-      clearInterval(moveInterval);
-      moveInterval = setInterval(movePopup, 5000);
-    }, 5000);
+      // Resume popup cycle after 20 seconds total
+      setTimeout(function() {
+        movePopup();
+        // Restart the movement interval (every 3 seconds)
+        clearInterval(moveInterval);
+        moveInterval = setInterval(movePopup, 3000);
+      }, 18000); // 20 seconds minus 2 seconds for message display
+    }, 2000);
   }
   
   document.addEventListener('DOMContentLoaded', function() {
@@ -277,8 +280,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Position popup initially
     movePopup();
     
-    // Start movement interval
-    moveInterval = setInterval(movePopup, 5000);
+    // Start movement interval (every 3 seconds)
+    moveInterval = setInterval(movePopup, 3000);
     
     // Button click handlers
     closeBtn.addEventListener('click', function() {
