@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEF CON Training Chamber - Hacking Simulator</title>
+    <title>Training Simulator - Security Challenge</title>
     <link rel="stylesheet" href="../assets/css/custom.css">
     <style>
         * {
@@ -198,33 +198,104 @@
             position: relative;
             width: 100%;
             height: 100%;
-        }
-
-        .phone-line {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            background: radial-gradient(circle, #00ff41, #00cc33);
-            border: 2px solid #00ff41;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 15px #00ff41;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 0.8rem;
-            font-weight: bold;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .rotary-phone {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, #00ff41 0%, #00cc33 100%);
+            border: 4px solid #00ff41;
+            border-radius: 50%;
+            box-shadow: 0 0 30px #00ff41, inset 0 0 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .rotary-dial {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            background: radial-gradient(circle, #1a1a2e, #0a0e27);
+            border: 3px solid #00ff41;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: grab;
             user-select: none;
-            transition: all 0.1s ease;
+            transition: transform 0.05s ease-out;
         }
 
-        .phone-line:active {
-            transform: scale(0.9);
+        .rotary-dial:active {
+            cursor: grabbing;
         }
 
-        .phone-line.tapped {
-            background: #39ff14;
-            animation: zone-success 0.5s ease-out forwards;
+        .rotary-number {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #00ff41;
+            text-shadow: 0 0 10px #00ff41;
+        }
+
+        .rotary-finger-hole {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            background: radial-gradient(circle, #1a1a2e, #0a0e27);
+            border: 2px solid #00ff41;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #39ff14;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .rotary-finger-hole:hover {
+            box-shadow: 0 0 15px #00ff41;
+            background: radial-gradient(circle, #2a3a4e, #1a2a3e);
+        }
+
+        .phone-line {
+            width: 280px;
+            text-align: center;
+            padding: 10px;
+            background: rgba(0, 255, 65, 0.1);
+            border: 2px solid #00ff41;
+            border-radius: 3px;
+            color: #39ff14;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ff41;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+
+        .phone-line.success {
+            background: rgba(57, 255, 20, 0.3);
+            color: #39ff14;
+            animation: zone-success 0.5s ease-out;
+        }
+
+        .phone-line.fail {
+            background: rgba(255, 16, 240, 0.3);
+            color: #ff10f0;
+            animation: zone-fail 0.5s ease-out;
         }
 
         @keyframes zone-success {
@@ -683,11 +754,11 @@
     <div class="game-container">
         <!-- INTRO SCREEN -->
         <div class="screen intro-screen active" id="introScreen">
-            <h1 class="intro-title">DEF CON TRAINING CHAMBER</h1>
-            <p class="intro-subtitle">Hacking Simulator</p>
-            <p class="intro-description">Master the legendary techniques of underground hackers. Navigate wardialing, social engineering, system exploitation, and data theft.</p>
+            <h1 class="intro-title">TRAINING SIMULATOR</h1>
+            <p class="intro-subtitle">Security Challenge</p>
+            <p class="intro-description">Test your security skills through interactive challenges. Complete each scenario to advance.</p>
             <button class="btn primary" id="startBtn" style="font-size: 1.2rem; padding: 12px 40px; margin: 20px 0;">START TRAINING</button>
-            <p style="color: #00ffff; font-size: 0.9rem;">$ ./defcon-simulator --access=GRANTED</p>
+            <p style="color: #00ffff; font-size: 0.9rem;">$ ./simulator --mode=training</p>
         </div>
 
         <!-- CHALLENGE SCREEN -->
@@ -711,10 +782,6 @@
                     <div class="hud-value" id="hudScore">0</div>
                 </div>
                 <div class="hud-item">
-                    <div class="hud-label">Accuracy</div>
-                    <div class="hud-value" id="hudAccuracy">100%</div>
-                </div>
-                <div class="hud-item">
                     <div class="hud-label">Time</div>
                     <div class="hud-value" id="hudTime">60s</div>
                 </div>
@@ -725,18 +792,14 @@
 
         <!-- GAME OVER SCREEN -->
         <div class="screen gameover-screen" id="gameoverScreen">
-            <h1 class="gameover-title">MISSION COMPLETE</h1>
+            <h1 class="gameover-title">SESSION COMPLETE</h1>
             <div class="final-score" id="finalScore">0</div>
-            <div class="player-name">AGENT: <span id="playerName">PHANTOM_001</span></div>
+            <div class="player-name">ID: <span id="playerName">PHANTOM_001</span></div>
             <div id="legendaryBadgeContainer"></div>
             <div class="stats-grid">
                 <div class="stat-box">
                     <div class="stat-value" id="statsLevelReached">4</div>
-                    <div class="stat-label">Level Reached</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="statsAccuracy">75%</div>
-                    <div class="stat-label">Accuracy</div>
+                    <div class="stat-label">Challenges Completed</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-value" id="statsTime">250s</div>
@@ -749,8 +812,8 @@
             </div>
 
             <div id="legendaryPromptContainer" style="display: none;" class="legendary-prompt">
-                <p class="legendary-prompt-text">LEGENDARY MODE UNLOCKED</p>
-                <p style="color: #ff10f0; font-size: 0.9rem;">You've proven yourself worthy. Face the ultimate challenge?</p>
+                <p class="legendary-prompt-text">ADVANCED CHALLENGE AVAILABLE</p>
+                <p style="color: #ff10f0; font-size: 0.9rem;">You've met the performance threshold. Continue with advanced mode?</p>
                 <div class="button-group">
                     <button class="btn primary" id="acceptLegendaryBtn">ACCEPT CHALLENGE</button>
                     <button class="btn danger" id="declineLegendaryBtn">DECLINE</button>
@@ -776,13 +839,11 @@
         const gameState = {
             currentChallenge: 0,
             score: 0,
-            accuracy: 100,
             totalAttempts: 0,
             totalCorrect: 0,
             alertLevel: 0,
             challengeTimes: [0, 0, 0, 0, 0],
             difficulty: 0,
-            avgAccuracy: 100,
             playerName: '',
             isLegendary: false,
             legendaryUnlocked: false,
@@ -791,32 +852,32 @@
 
         const challenges = [
             {
-                name: 'WARDIALING',
-                intro: 'The underground networks are waiting. Scan the frequencies to find entry points.',
+                name: 'RECONNAISSANCE',
+                intro: 'Identify target systems by scanning available signals.',
                 duration: 25,
                 type: 'wardialing'
             },
             {
-                name: 'SOCIAL ENGINEERING',
-                intro: 'Trust is the greatest vulnerability. Learn to manipulate through psychology.',
+                name: 'INTERACTION',
+                intro: 'Select the correct responses to system prompts.',
                 duration: 25,
                 type: 'social'
             },
             {
-                name: 'SYSTEM EXPLOIT',
-                intro: 'Systems have weaknesses. Find the exploit.',
+                name: 'FIREWALL',
+                intro: 'Bypass security by matching the color patterns.',
                 duration: 25,
                 type: 'exploit'
             },
             {
-                name: 'DATA EXFILTRATION',
-                intro: 'Extract the data before the alarms trigger.',
+                name: 'COLLECTION',
+                intro: 'Match and retrieve the required information pairs.',
                 duration: 30,
                 type: 'exfil'
             },
             {
-                name: 'LEGENDARY MODE',
-                intro: 'The true legends vanish without a trace. Can you master all techniques under pressure?',
+                name: 'ADVANCED',
+                intro: 'Master multiple techniques under time pressure.',
                 duration: 23,
                 type: 'legendary'
             }
@@ -827,15 +888,18 @@
         function init() {
             gameState.currentChallenge = 0;
             gameState.score = 0;
-            gameState.accuracy = 100;
             gameState.totalAttempts = 0;
             gameState.totalCorrect = 0;
             gameState.alertLevel = 0;
             gameState.difficulty = 0;
-            gameState.avgAccuracy = 100;
             gameState.isLegendary = false;
             gameState.legendaryUnlocked = false;
             gameState.gameStartTime = Date.now();
+
+            // Update HUD displays
+            document.getElementById('hudScore').textContent = '0';
+            document.getElementById('hudLevel').textContent = '1';
+            document.getElementById('hudTime').textContent = '0s';
 
             showScreen('introScreen');
         }
@@ -883,61 +947,239 @@
 
         function createWardialingChallenge(board, timerInterval) {
             const challengeData = {
-                targetTaps: Math.floor(15 + (gameState.difficulty * 3)),
-                tappedCount: 0,
-                timerInterval: timerInterval,
-                spawnRate: Math.max(0.4, 1.2 - (gameState.difficulty * 0.1))
+                targetSequences: Math.floor(3 + gameState.difficulty),
+                completedSequences: 0,
+                targetNumber: [],
+                currentTarget: [],
+                isDialing: false,
+                selectedDigit: null
             };
 
             const wardialingBoard = document.createElement('div');
             wardialingBoard.className = 'wardialing-board';
             board.appendChild(wardialingBoard);
 
-            function spawnPhoneLine() {
-                const line = document.createElement('div');
-                line.className = 'phone-line';
-                line.textContent = '●';
-                line.style.left = Math.random() * (wardialingBoard.offsetWidth - 50) + 'px';
-                line.style.top = Math.random() * (wardialingBoard.offsetHeight - 50) + 'px';
+            // Create target display
+            const targetDiv = document.createElement('div');
+            targetDiv.className = 'phone-line';
+            targetDiv.style.color = '#ff10f0';
+            targetDiv.style.textShadow = '0 0 10px #ff10f0';
+            targetDiv.style.borderColor = '#ff10f0';
+            targetDiv.style.background = 'rgba(255, 16, 240, 0.1)';
+            targetDiv.textContent = `Target: `;
+            wardialingBoard.appendChild(targetDiv);
 
-                let tapped = false;
-                const handleTap = () => {
-                    if (!tapped) {
-                        tapped = true;
-                        line.classList.add('tapped');
-                        challengeData.tappedCount++;
-                        gameState.totalCorrect++;
-                        gameState.totalAttempts++;
-                        updateScore(10 + gameState.difficulty * 2);
-                    }
-                };
-                line.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    handleTap();
-                });
-                line.addEventListener('click', handleTap);
+            // Create status display
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'phone-line';
+            statusDiv.textContent = `Dialed: `;
+            wardialingBoard.appendChild(statusDiv);
 
-                wardialingBoard.appendChild(line);
+            // Create rotary phone
+            const phoneContainer = document.createElement('div');
+            phoneContainer.className = 'rotary-phone';
+            wardialingBoard.appendChild(phoneContainer);
 
-                setTimeout(() => {
-                    if (!tapped) line.remove();
-                }, 2000);
+            const dial = document.createElement('div');
+            dial.className = 'rotary-dial';
+            phoneContainer.appendChild(dial);
+
+            // Create finger stop (metal barrier at bottom-right)
+            const fingerStop = document.createElement('div');
+            fingerStop.style.position = 'absolute';
+            fingerStop.style.width = '20px';
+            fingerStop.style.height = '20px';
+            fingerStop.style.background = '#666';
+            fingerStop.style.border = '2px solid #999';
+            fingerStop.style.borderRadius = '3px';
+            fingerStop.style.right = '10px';
+            fingerStop.style.bottom = '15px';
+            fingerStop.style.zIndex = '10';
+            phoneContainer.appendChild(fingerStop);
+
+            // Create dial numbers (0-9 in a circle)
+            const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+            const fingerStopAngle = 90; // Finger stop position (bottom-right)
+            
+            numbers.forEach((num, i) => {
+                const angle = (i * 36) - 90; // Start from top
+                const radius = 100;
+                const x = Math.cos((angle * Math.PI) / 180) * radius;
+                const y = Math.sin((angle * Math.PI) / 180) * radius;
+
+                const fingerHole = document.createElement('div');
+                fingerHole.className = 'rotary-finger-hole';
+                fingerHole.textContent = num;
+                fingerHole.style.left = `calc(50% + ${x}px - 22.5px)`;
+                fingerHole.style.top = `calc(50% + ${y}px - 22.5px)`;
+                fingerHole.dataset.digit = num;
+                fingerHole.dataset.angle = angle;
+                
+                fingerHole.addEventListener('mousedown', (e) => startDialing(e, num, angle));
+                fingerHole.addEventListener('touchstart', (e) => startDialing(e, num, angle), { passive: false });
+                
+                dial.appendChild(fingerHole);
+            });
+
+            let currentRotation = 0;
+            let isDragging = false;
+            let dragStartRotation = 0;
+            let dragStartClientY = 0;
+            let selectedDigitAngle = 0;
+
+            function startDialing(e, digit, startAngle) {
+                if (challengeData.isDialing) return;
+                e.preventDefault();
+                
+                challengeData.selectedDigit = digit;
+                selectedDigitAngle = startAngle;
+                isDragging = true;
+                dragStartRotation = currentRotation;
+                dragStartClientY = e.clientY || e.touches?.[0]?.clientY || 0;
+                
+                dial.style.cursor = 'grabbing';
             }
 
-            const spawnInterval = setInterval(() => {
-                if (challengeData.tappedCount < challengeData.targetTaps) {
-                    spawnPhoneLine();
-                }
-            }, challengeData.spawnRate * 1000);
+            // Calculate max rotation to finger stop for this digit
+            function getMaxRotation(digitAngle) {
+                // Normalize angles
+                let normalized = ((digitAngle % 360) + 360) % 360;
+                let stopAngle = ((fingerStopAngle % 360) + 360) % 360;
+                
+                // Maximum clockwise rotation to reach the stop
+                let maxRot = stopAngle - normalized;
+                if (maxRot < 0) maxRot += 360;
+                if (maxRot > 180) maxRot -= 360; // Only rotate up to 180° (half circle)
+                
+                return maxRot;
+            }
 
-            // Override timerInterval cleanup
-            const originalInterval = challengeData.timerInterval;
-            const challengeEndOverride = () => {
-                clearInterval(spawnInterval);
-            };
-            
-            // Store reference to clear when challenge ends
-            board.addEventListener('timerEnd', challengeEndOverride, { once: true });
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                const clientY = e.clientY;
+                const deltaY = dragStartClientY - clientY; // Upward drag = positive
+                
+                // Convert drag distance to rotation (clockwise = positive rotation)
+                const maxRotation = getMaxRotation(selectedDigitAngle);
+                let newRotation = dragStartRotation + (deltaY * 0.5); // Scale the drag
+                
+                // Constrain to max rotation for this digit
+                newRotation = Math.min(maxRotation, Math.max(0, newRotation));
+                
+                currentRotation = newRotation;
+                dial.style.transform = `rotate(${currentRotation}deg)`;
+            });
+
+            document.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                
+                const clientY = e.touches[0].clientY;
+                const deltaY = dragStartClientY - clientY;
+                
+                const maxRotation = getMaxRotation(selectedDigitAngle);
+                let newRotation = dragStartRotation + (deltaY * 0.5);
+                
+                newRotation = Math.min(maxRotation, Math.max(0, newRotation));
+                
+                currentRotation = newRotation;
+                dial.style.transform = `rotate(${currentRotation}deg)`;
+            }, { passive: true });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    dial.style.cursor = 'grab';
+                    handleDialRelease();
+                }
+            });
+
+            document.addEventListener('touchend', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    handleDialRelease();
+                }
+            });
+
+            function handleDialRelease() {
+                challengeData.isDialing = true;
+                const dialedDigit = challengeData.selectedDigit;
+
+                // Animate dial return to home position
+                dial.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                dial.style.transform = `rotate(0deg)`;
+                
+                setTimeout(() => {
+                    dial.style.transition = '';
+                    currentRotation = 0;
+
+                    // Check if matches target
+                    const targetDigit = challengeData.currentTarget[challengeData.targetNumber.length];
+                    const isCorrect = dialedDigit === targetDigit;
+
+                    // Record digit
+                    challengeData.targetNumber.push(dialedDigit);
+                    gameState.totalAttempts++;
+                    
+                    if (isCorrect) {
+                        gameState.totalCorrect++;
+                        updateScore(15 + gameState.difficulty * 3);
+                        statusDiv.textContent = `Dialed: ${challengeData.targetNumber.join('-')}`;
+                        statusDiv.classList.add('success');
+                        setTimeout(() => statusDiv.classList.remove('success'), 400);
+                    } else {
+                        updateScore(-10);
+                        statusDiv.textContent = `Dialed: ${challengeData.targetNumber.join('-')} ❌`;
+                        statusDiv.classList.add('fail');
+                        setTimeout(() => statusDiv.classList.remove('fail'), 400);
+                    }
+
+                    // Check if sequence complete
+                    if (challengeData.targetNumber.length >= challengeData.currentTarget.length) {
+                        const sequenceCorrect = challengeData.targetNumber.every((d, i) => d === challengeData.currentTarget[i]);
+                        
+                        if (sequenceCorrect) {
+                            challengeData.completedSequences++;
+                            statusDiv.textContent = `✓ Sequence ${challengeData.completedSequences}/${challengeData.targetSequences} complete`;
+                            statusDiv.classList.add('success');
+                            
+                            setTimeout(() => {
+                                challengeData.isDialing = false;
+                                if (challengeData.completedSequences >= challengeData.targetSequences) {
+                                    clearInterval(timerInterval);
+                                    nextChallenge();
+                                } else {
+                                    generateNextTarget();
+                                }
+                            }, 800);
+                        } else {
+                            statusDiv.textContent = `Sequence failed. Restarting...`;
+                            statusDiv.classList.add('fail');
+                            setTimeout(() => {
+                                challengeData.targetNumber = [];
+                                statusDiv.textContent = `Dialed: `;
+                                statusDiv.classList.remove('fail');
+                                challengeData.isDialing = false;
+                            }, 1000);
+                        }
+                    } else {
+                        challengeData.isDialing = false;
+                    }
+                }, 600);
+            }
+
+            function generateNextTarget() {
+                const targetLength = 2 + Math.floor(gameState.difficulty);
+                challengeData.currentTarget = [];
+                for (let i = 0; i < targetLength; i++) {
+                    challengeData.currentTarget.push(Math.floor(Math.random() * 10));
+                }
+                challengeData.targetNumber = [];
+                targetDiv.textContent = `Target: ${challengeData.currentTarget.join('-')}`;
+                statusDiv.textContent = `Dialed: `;
+            }
+
+            generateNextTarget();
         }
 
         function createSocialChallenge(board, timerInterval) {
@@ -1021,75 +1263,133 @@
 
         function createExploitChallenge(board, timerInterval) {
             const challengeData = {
-                barsCompleted: 0,
-                targetBars: 4 + Math.floor(gameState.difficulty * 1.5),
+                patternsCompleted: 0,
+                targetPatterns: 3 + Math.floor(gameState.difficulty),
+                patternLength: 3 + Math.floor(gameState.difficulty * 0.5),
                 timerInterval: timerInterval
             };
 
-            const exploitBoard = document.createElement('div');
-            exploitBoard.className = 'exploit-board';
-            board.appendChild(exploitBoard);
+            const firewall = document.createElement('div');
+            firewall.style.display = 'flex';
+            firewall.style.flexDirection = 'column';
+            firewall.style.alignItems = 'center';
+            firewall.style.gap = '30px';
+            firewall.style.width = '100%';
+            board.appendChild(firewall);
 
-            function createBar() {
-                const bar = document.createElement('div');
-                bar.className = 'exploit-bar';
-                exploitBoard.appendChild(bar);
+            // Create pattern display
+            const patternDisplay = document.createElement('div');
+            patternDisplay.style.display = 'flex';
+            patternDisplay.style.gap = '10px';
+            patternDisplay.style.justifyContent = 'center';
+            firewall.appendChild(patternDisplay);
 
-                const progress = document.createElement('div');
-                progress.className = 'exploit-progress';
-                bar.appendChild(progress);
+            // Create input grid
+            const gridContainer = document.createElement('div');
+            gridContainer.style.display = 'grid';
+            gridContainer.style.gridTemplateColumns = `repeat(${Math.min(4, challengeData.patternLength)}, 70px)`;
+            gridContainer.style.gap = '15px';
+            gridContainer.style.justifyContent = 'center';
+            firewall.appendChild(gridContainer);
 
-                const zone = document.createElement('div');
-                zone.className = 'exploit-zone';
-                const zoneStart = 60 + Math.random() * 20;
-                const zoneWidth = Math.max(10, 30 - gameState.difficulty * 2);
-                zone.style.left = zoneStart + '%';
-                zone.style.width = zoneWidth + '%';
-                bar.appendChild(zone);
+            let currentPattern = [];
+            let userInput = [];
 
-                let width = 0;
-                const barInterval = setInterval(() => {
-                    width += (1 + gameState.difficulty * 0.5);
-                    progress.style.width = width + '%';
-
-                    if (width >= 100) {
-                        clearInterval(barInterval);
-                        bar.style.opacity = '0.5';
-                    }
-                }, 30);
-
-                const handleTap = () => {
-                    const progressPercent = (parseFloat(progress.style.width) || 0);
-                    const inZone = progressPercent >= zoneStart && progressPercent <= (zoneStart + zoneWidth);
-
-                    gameState.totalAttempts++;
-                    if (inZone) {
-                        gameState.totalCorrect++;
-                        updateScore(20 + gameState.difficulty * 4);
-                        clearInterval(barInterval);
-                        bar.style.background = '#39ff14';
-                        challengeData.barsCompleted++;
-                    } else {
-                        updateScore(-5);
-                    }
-                };
-
-                bar.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    handleTap();
-                });
-                bar.addEventListener('click', handleTap);
+            function generatePattern() {
+                currentPattern = [];
+                for (let i = 0; i < challengeData.patternLength; i++) {
+                    currentPattern.push(Math.floor(Math.random() * 4));
+                }
+                userInput = [];
+                updateDisplay();
             }
 
-            // Create first bar
-            createBar();
+            function updateDisplay() {
+                patternDisplay.innerHTML = '';
+                currentPattern.forEach((val, idx) => {
+                    const box = document.createElement('div');
+                    box.style.width = '50px';
+                    box.style.height = '50px';
+                    box.style.background = ['#ff10f0', '#00ffff', '#39ff14', '#ff7700'][val];
+                    box.style.border = '2px solid #fff';
+                    box.style.borderRadius = '5px';
+                    box.style.boxShadow = `0 0 15px ${['#ff10f0', '#00ffff', '#39ff14', '#ff7700'][val]}`;
+                    if (idx < userInput.length) {
+                        const correct = userInput[idx] === currentPattern[idx];
+                        box.style.opacity = correct ? '1' : '0.3';
+                        box.textContent = correct ? '✓' : '✗';
+                        box.style.fontSize = '1.5rem';
+                        box.style.fontWeight = 'bold';
+                        box.style.color = correct ? '#39ff14' : '#ff10f0';
+                        box.style.display = 'flex';
+                        box.style.justifyContent = 'center';
+                        box.style.alignItems = 'center';
+                    }
+                    patternDisplay.appendChild(box);
+                });
+            }
 
-            // Create additional bars if needed
-            const barCreationInterval = setInterval(() => {
-                if (challengeData.barsCompleted < challengeData.targetBars) {
-                    createBar();
+            // Create button grid
+            const colors = ['#ff10f0', '#00ffff', '#39ff14', '#ff7700'];
+            for (let i = 0; i < 4; i++) {
+                const btn = document.createElement('button');
+                btn.style.width = '70px';
+                btn.style.height = '70px';
+                btn.style.background = colors[i];
+                btn.style.border = 'none';
+                btn.style.borderRadius = '5px';
+                btn.style.cursor = 'pointer';
+                btn.style.boxShadow = `0 0 15px ${colors[i]}`;
+                btn.style.fontWeight = 'bold';
+                btn.style.fontSize = '1.2rem';
+                btn.style.fontFamily = 'monospace';
+                btn.style.color = '#0a0e27';
+                btn.style.transition = 'all 0.1s ease';
+                btn.textContent = i + 1;
+
+                btn.onmouseover = () => btn.style.transform = 'scale(1.1)';
+                btn.onmouseout = () => btn.style.transform = 'scale(1)';
+
+                btn.addEventListener('click', () => selectColor(i));
+                btn.addEventListener('touchstart', () => selectColor(i), { passive: true });
+
+                gridContainer.appendChild(btn);
+            }
+
+            function selectColor(colorIdx) {
+                userInput.push(colorIdx);
+                gameState.totalAttempts++;
+
+                if (colorIdx === currentPattern[userInput.length - 1]) {
+                    gameState.totalCorrect++;
+                    updateScore(15 + gameState.difficulty * 3);
+                } else {
+                    updateScore(-15);
                 }
-            }, 3000);
+
+                updateDisplay();
+
+                if (userInput.length === currentPattern.length) {
+                    const patternCorrect = userInput.every((c, i) => c === currentPattern[i]);
+                    
+                    setTimeout(() => {
+                        if (patternCorrect) {
+                            challengeData.patternsCompleted++;
+                            if (challengeData.patternsCompleted >= challengeData.targetPatterns) {
+                                clearInterval(timerInterval);
+                                nextChallenge();
+                            } else {
+                                generatePattern();
+                            }
+                        } else {
+                            userInput = [];
+                            updateDisplay();
+                        }
+                    }, 800);
+                }
+            }
+
+            generatePattern();
         }
 
         function createExfilChallenge(board, timerInterval) {
@@ -1223,34 +1523,22 @@
 
 
         function updateScore(points) {
+            console.log(`updateScore called with points: ${points}, old score: ${gameState.score}, new score: ${gameState.score + points}`);
             gameState.score += points;
             document.getElementById('hudScore').textContent = gameState.score;
-
-            // Update accuracy
-            if (gameState.totalAttempts > 0) {
-                gameState.accuracy = Math.round((gameState.totalCorrect / gameState.totalAttempts) * 100);
-                document.getElementById('hudAccuracy').textContent = gameState.accuracy + '%';
-            }
         }
 
         function nextChallenge() {
             // Update difficulty based on performance
-            if (gameState.accuracy >= 75) {
-                gameState.difficulty += 0.3;
-            } else if (gameState.accuracy < 60) {
-                gameState.difficulty = Math.max(0, gameState.difficulty - 0.2);
-            }
+            gameState.difficulty += 0.2;
 
-            // Calculate average accuracy
-            gameState.avgAccuracy = gameState.accuracy;
+
 
             gameState.currentChallenge++;
 
             if (gameState.currentChallenge >= 4) {
                 // Check if legendary mode is unlocked
-                if (gameState.accuracy >= 65) {
-                    gameState.legendaryUnlocked = true;
-                }
+                gameState.legendaryUnlocked = true;
                 endGame();
             } else {
                 setTimeout(() => startChallenge(), 1000);
@@ -1272,7 +1560,6 @@
             document.getElementById('finalScore').textContent = gameState.score;
             document.getElementById('playerName').textContent = gameState.playerName;
             document.getElementById('statsLevelReached').textContent = gameState.currentChallenge;
-            document.getElementById('statsAccuracy').textContent = gameState.avgAccuracy + '%';
             document.getElementById('statsTime').textContent = elapsedTime + 's';
             document.getElementById('statsAlertLevel').textContent = Math.min(100, gameState.alertLevel) + '%';
 
@@ -1288,12 +1575,12 @@
         }
 
         function saveScore() {
-            let scores = JSON.parse(localStorage.getItem('defconScores') || '[]');
+            let scores = JSON.parse(localStorage.getItem('gameScores') || '[]');
             
             scores.push({
                 name: gameState.playerName,
                 score: gameState.score,
-                accuracy: gameState.avgAccuracy,
+
                 date: new Date().toLocaleString(),
                 legendary: gameState.isLegendary
             });
@@ -1302,11 +1589,11 @@
             scores.sort((a, b) => b.score - a.score);
             scores = scores.slice(0, 5);
 
-            localStorage.setItem('defconScores', JSON.stringify(scores));
+            localStorage.setItem('gameScores', JSON.stringify(scores));
         }
 
         function displayHighScores() {
-            const scores = JSON.parse(localStorage.getItem('defconScores') || '[]');
+            const scores = JSON.parse(localStorage.getItem('gameScores') || '[]');
             const scoresList = document.getElementById('scoresList');
             scoresList.innerHTML = '';
 
@@ -1328,8 +1615,17 @@
         }
 
         // Event Listeners
-        document.getElementById('startBtn').addEventListener('click', startChallenge);
-        document.getElementById('restartBtn').addEventListener('click', init);
+        let gameStarted = false;
+        document.getElementById('startBtn').addEventListener('click', () => {
+            if (!gameStarted) {
+                gameStarted = true;
+                startChallenge();
+            }
+        });
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            gameStarted = false;
+            init();
+        });
         document.getElementById('homeBtn').addEventListener('click', () => {
             window.location.href = '../';
         });
