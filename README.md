@@ -1,10 +1,12 @@
+<a name="top"></a>
 # Rent a Hack3r
 
 Welcome to Rent a Hack3r, where your wildest hacker dreams come true!
 
 ---
 
-## Our Services
+<a name="services"></a>
+## [Our Services](#team)
 
 - **Website Defacements**
 - **Email Hacking**
@@ -16,13 +18,15 @@ Remember, if it's online, we can hack it. (Just kidding... or are we?)
 
 ---
 
-## About Us
+<a name="about"></a>
+## [About Us](#impossible-requests)
 
 At Rent a Hack3r, we pride ourselves on providing top-tier hacking services with a touch of humor. Our team of expert hackers has years of experience in making the internet a more interesting place. Whether you need a harmless prank or a serious security audit, we've got you covered.
 
 ---
 
-## How It Works
+<a name="how-it-works"></a>
+## [How It Works](#testimonials)
 
 1. **Submit a Request**: Imagine sending us an email with your desired service.
 2. **Get a Quote**: In your dreams, we'll evaluate your request and send you a quote.
@@ -31,7 +35,8 @@ At Rent a Hack3r, we pride ourselves on providing top-tier hacking services with
 
 ---
 
-## Our Team
+<a name="team"></a>
+## [Our Team](#faq)
 
 - **The Shadow**: Expert in social engineering and online pranks.
 - **Ghost**: Specializes in website defacements and digital graffiti.
@@ -40,7 +45,8 @@ At Rent a Hack3r, we pride ourselves on providing top-tier hacking services with
 
 ---
 
-## ◇◇◇ WHAT THEY'RE SAYING ◇◇◇
+<a name="testimonials"></a>
+## [◇◇◇ WHAT THEY'RE SAYING ◇◇◇](#contact)
 
 > "Rent a Hack3r helped me pull off the best April Fool's prank ever! Highly recommend." 
 > — *Anonymous* *(also fictional)*
@@ -50,8 +56,10 @@ At Rent a Hack3r, we pride ourselves on providing top-tier hacking services with
 
 ---
 
-## ◆◆◆ CASE STUDIES ◆◆◆
+<a name="case-studies"></a>
+## [◆◆◆ CASE STUDIES ◆◆◆](#how-it-works)
 
+<a name="case-study-1"></a>
 ### Case Study 1: The Great Prank
 
 ```
@@ -63,6 +71,7 @@ DAMAGE: $0 (imaginary incident)
 
 A company wanted to play a harmless prank. We defaced their internal website with funny messages. No actual crimes committed. All in good fun.
 
+<a name="case-study-2"></a>
 ### Case Study 2: Social Media Recovery
 
 ```
@@ -75,7 +84,8 @@ A client got hacked. We "recovered" their accounts (in this fictional universe).
 
 ---
 
-## ◇◇◇ IMPOSSIBLE REQUESTS ◇◇◇
+<a name="impossible-requests"></a>
+## [◇◇◇ IMPOSSIBLE REQUESTS ◇◇◇](#about)
 
 > 💀 **"Can you hack my ex's Instagram?"**  
 > Sure, right after we invent a time machine and make it to Tuesday.
@@ -88,7 +98,8 @@ A client got hacked. We "recovered" their accounts (in this fictional universe).
 
 ---
 
-## ◆◆◆ FAQ ◆◆◆
+<a name="faq"></a>
+## [◆◆◆ FAQ ◆◆◆](#services)
 
 **Q: Is this service legal?**  
 ```
@@ -129,7 +140,8 @@ For entertainment and educational purposes. If you think this is real, we have s
 
 ---
 
-## ◇◇◇ GET IN TOUCH ◇◇◇
+<a name="contact"></a>
+## [◇◇◇ GET IN TOUCH ◇◇◇](#case-studies)
 
 ```
 $ contact --method=fictional
