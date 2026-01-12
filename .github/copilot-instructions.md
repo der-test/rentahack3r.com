@@ -32,30 +32,61 @@ This is a **satirical/joke website** built with Jekyll using the GitHub Pages Ha
 - **Juxtaposition Humor**: Treats impossible/illegal requests as if serious, then deflates with jokes
 - **Disclaimer Pattern**: Always includes explicit disclaimers that the site is fictional and not for illegal activity use
 - **Terminal/Hacker Aesthetic**: Content styled as command-line interactions and system messages (`$ ` prompts, `[STATUS]` blocks, code fences)
-- **Glitch Art Visual**: ASCII art decorations, terminal box drawing characters, intentional "data corruption" styling
+- **Chaotic Navigation**: Headers are clickable links that form a circular navigation loop between sections, creating intentional disorientation
+- **Non-Existent Contact**: Email uses fake non-existent TLD (`.nil`) to reinforce fiction while maintaining hacker aesthetic
+- **No Spoilers**: User-facing text doesn't reveal the satirical nature—visitors discover the joke through exploration
 
-### Visual Redesign: Glitch Art CRT Green
-The site now features an immersive **glitch art aesthetic** with retro CRT terminal vibes:
+### Visual Design: Extreme CRT Chaos
+The site features an immersive **retro CRT terminal aesthetic** with extreme animated effects designed to feel chaotic and hyperstimulating:
 
 **Color Palette**:
-- Primary: CRT green `#00ff41` with glow effects
+- Primary: CRT green `#00ff41` with pulsing glow effects
 - Accents: Magenta `#ff10f0`, Cyan `#00ffff` for RGB channel separation
-- Background: Dark navy `#0a0e27` simulating old monitor glow
+- Extended: Neon lime `#39ff14`, Acid green `#10ff10` for color cycling
+- Background: Dark navy `#0a0e27` simulating old monitor phosphor
 
-**CSS Effects** (in `assets/css/custom.css`):
-- **Scanline overlay**: Fixed position horizontal stripe pattern with `repeating-linear-gradient` for CRT effect
-- **Animated glitch**: Headers shift between green/cyan/magenta with RGB channel separation (`glitch-color-shift` keyframes)
-- **Text shadow glow**: All headers have `text-shadow` with multiple layers for neon glow
-- **Service cards** (`.service-item`): Colored borders (green/magenta/cyan) with hover transform effects
-- **Corrupted sections** (`.corrupted`): Gradient background with `[CORRUPTED DATA]` label and pulsing animation
-- **Terminal boxes** (`.response-box`): Dark background with green borders and `$ ` prefix
-- **Disclaimer** (`.disclaimer`): Dashed magenta border with animated glitch color cycling
+**CSS Animation Architecture** (in `assets/css/custom.css`):
+- **Scanline overlay**: Animated repeating horizontal stripes with shifting effect (0.08s cycle)
+- **Screen noise**: Fixed SVG noise overlay with continuous shift animation
+- **Body flicker**: Global 0.05s opacity flicker simulating CRT instability
+- **Full-screen glitch**: Body skew and color cycling (3s duration) affecting all text
+- **Header animations** (h1-h6): Multiple simultaneous animations:
+  - `glitch-color-chaos`: Ultra-aggressive 6-color cycling (3-5s)
+  - `chromatic-pulse`: RGB channel separation with drop-shadow
+  - `header-glow-shift`: Brightness and glow cycling
+  - h1: Additional `h1-distort` for scale/skew wobble (1.5s)
+  - h2: Additional `h2-pulse` and `h2-rotate` for layered effects
+  - h3: `h3-wiggle` for continuous horizontal jitter (0.8s)
+- **Link animations**: Pulsing text-shadow (`link-throb`, 1.5s) + continuous gradient shift in ::before pseudo-element
+- **Service cards** (`.service-item`): Four simultaneous animations:
+  - `card-pulse`: Shadow intensity pulsing (2s)
+  - `card-border-shift`: Border color cycling between green/magenta/cyan (3s)
+  - `card-glitch`: Micro-translations (4s)
+  - Mobile: Additional `mobile-card-shake` for aggressive 0.6s jitter
+- **Blockquotes**: Dual animations with color-shifting borders and opacity flicker
+- **Code blocks**: Continuous `code-flicker` (0.5s opacity cycle) simulating transmission errors
+- **List items**: Color cycling between green and neon-lime (6s)
+- **Tables**: Row hover with skew transform + brightness filter
+- **Emphasis elements**: 
+  - `<strong>`: Dual `strong-pulse` and `strong-blink` (1.5s and 2s)
+  - `<em>`: Dual `em-pulse` and `em-shimmer` brightness (2s and 3s)
+- **Corrupted sections** (`.corrupted`): Pulsing opacity with glitch-chaos animation on `::before` label
+- **Response boxes** (`.response-box`): Pulsing box-shadow (2s) with green glow intensification
+- **Disclaimer** (`.disclaimer`): `glitch-color-chaos` color cycling (2s) + spinning `⚠️` emoji
 
-**Animation Strategy**:
-- Headers: Continuous `glitch-color-shift` (8-15s duration) for subtle shifting color effect
-- Hover states: `glitch-intense` animation (0.3s) creates jarring displacement on interaction
-- CRT flicker: Body-wide 0.15s opacity flicker for authentic old monitor feel
-- Scanlines: Fixed, no animation - always visible overlay
+**Mobile-Specific Enhancements**:
+- Headers animate much faster (0.8-2s cycles instead of 3-5s)
+- Service cards get `mobile-card-shake` aggressive jitter overlay
+- Scanlines animate faster with increased opacity (0.2 instead of 0.12)
+- Noise shift runs at 0.15s instead of 0.3s
+- All link/text animations compressed to 1-1.5s cycles
+- Tables get additional `table-distort` skew animation
+- Mobile creates overlapping animation layers for cumulative chaos effect
+
+**Accessibility**:
+- All animations respect `prefers-reduced-motion` media query
+- Critical content (disclaimers) remain readable despite effects
+- Color isn't the only visual indicator (glyphs, icons, text present)
 
 ### Multilingual Content
 - `qr/qr.html` contains German text ("Dieses USB-Gerät wurde als Test in ihrem Gerät hinterlassen...")
@@ -66,16 +97,29 @@ The site now features an immersive **glitch art aesthetic** with retro CRT termi
 When updating content:
 
 1. **Preserve the satirical tone** - All additions should be clearly humorous and impossible/illegal in nature
-2. **Add disclaimers** - Any new "service" description should be followed by a joke or explicit statement that it's fictional
-3. **Keep disclaimers prominent** - The repeated disclaimer that "this is not real" is intentional and shouldn't be removed
-4. **Maintain glitch aesthetic** - New content should include terminal-style formatting: code blocks with `$` prompts, `[STATUS]` blocks, ASCII art borders
-5. **Apply CSS classes appropriately**:
-   - `.service-item`: For service descriptions (auto-applies borders and hover effects)
-   - `.corrupted`: For sections that should appear "data-corrupted" with animated label
-   - `.response-box`: For terminal output/responses with prompt prefix
-   - `.disclaimer`: For legal disclaimers (auto-applies magenta border and glitch animation)
-6. **Keep HTML inline in README**: Use `<div>` blocks with CSS classes directly in markdown for consistent styling
-7. **Test with Jekyll locally** - Run `bundle exec jekyll serve` to preview glitch animations and scanline effects before pushing (requires Ruby/bundler)
+2. **Don't spoil the joke** - Avoid explicit mentions of "satire," "joke," or "fake" in user-facing text; let visitors discover it
+3. **Add disclaimers** - Any new "service" description should be followed by a joke or explicit statement that it's fictional
+4. **Keep disclaimers prominent** - The repeated disclaimer that "this is not real" is intentional and shouldn't be removed
+5. **Maintain hacker aesthetic** - New content should include terminal-style formatting: code blocks with `$` prompts, `[STATUS]` blocks, ASCII art borders
+6. **Use circular navigation** - New headers should link to other headers via markdown anchor links to create a chaotic navigation loop
+7. **Non-existent contact info** - Contact details (email, phone) should use obviously fake/non-existent values (TLDs like `.nil`, domains that don't resolve)
+8. **Apply CSS classes appropriately**:
+   - `.service-item`: For service descriptions (auto-applies borders, color cycling, pulsing animations)
+   - `.corrupted`: For sections that should appear "data-corrupted" with animated label and flicker
+   - `.response-box`: For terminal output/responses with `$ ` prompt prefix and pulsing glow
+   - `.disclaimer`: For legal disclaimers (auto-applies magenta border, color cycling, warning emoji)
+9. **Keep HTML inline in README**: Use `<div>` blocks with CSS classes directly in markdown for consistent styling
+10. **Test responsively** - Run `bundle exec jekyll serve` and test on mobile; animations are more aggressive on smaller screens
+11. **Don't remove animations** - The extreme effects are intentional; they reinforce the chaotic hacker aesthetic
+
+## CSS Classes Reference
+
+- **Headers with links**: Wrap header text in markdown bracket syntax to make entire header clickable
+- **Anchor navigation**: Use `<a name="section-id"></a>` before headers to create jump targets
+- **Service item styling**: `<div class="service-item">content</div>` - applies pulsing borders, glow, scan sweep, color cycling
+- **Corrupted data effect**: `<div class="corrupted">content</div>` - applies flicker, border cycling, glitch label
+- **Terminal responses**: `<div class="response-box">output</div>` - applies dollar sign prefix, pulsing shadow
+- **Legal disclaimers**: `<div class="disclaimer">text</div>` - applies dashed border, color chaos, spinning warning icon
 
 ## Build & Deployment
 
