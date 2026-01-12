@@ -51,10 +51,8 @@
 
     <div class="controls">
         <div style="color: #ff10f0;">MOVEMENT:</div>
-        <div>W/A/S/D - MOVE</div>
-        <div>SPACE - UP</div>
-        <div>C - DOWN</div>
-        <div style="color: #ff10f0; margin-top: 4px;">MOUSE - LOOK</div>
+        <div>CLICK/TAP - MOVE</div>
+        <div style="color: #ff10f0; margin-top: 4px;">DRAG - LOOK</div>
     </div>
 
     <canvas id="minimap"></canvas>
@@ -125,31 +123,62 @@
             }
         };
 
-        const keys = {};
-        const mouse = { locked: false, dx: 0, dy: 0 };
+        const mouse = { dx: 0, dy: 0, dragging: false, lastX: 0, lastY: 0, dragDistance: 0, startX: 0, startY: 0 };
+        const movement = { targetPos: null, isMoving: false };
 
-        document.addEventListener('keydown', (e) => {
-            keys[e.key.toLowerCase()] = true;
-            if (e.key === ' ') e.preventDefault();
-        });
-        document.addEventListener('keyup', (e) => {
-            keys[e.key.toLowerCase()] = false;
-        });
-
-        canvas.addEventListener('click', () => {
-            canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock;
-            canvas.requestPointerLock();
-        });
-
-        document.addEventListener('pointerlockchange', () => {
-            mouse.locked = document.pointerLockElement === canvas;
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const screenX = e.clientX - rect.left;
+            const screenY = e.clientY - rect.top;
+            
+            mouse.dragging = true;
+            mouse.dragDistance = 0;
+            mouse.lastX = screenX;
+            mouse.lastY = screenY;
+            mouse.startX = screenX;
+            mouse.startY = screenY;
         });
 
-        document.addEventListener('mousemove', (e) => {
-            if (!mouse.locked) return;
-            mouse.dx += e.movementX * 0.002;
-            mouse.dy += e.movementY * 0.002;
+        canvas.addEventListener('mouseup', (e) => {
+            if (mouse.dragDistance < 10 && !gameState.challengeActive) {
+                const rect = canvas.getBoundingClientRect();
+                const screenX = e.clientX - rect.left;
+                const screenY = e.clientY - rect.top;
+                setMoveTarget(screenX, screenY);
+            }
+            mouse.dragging = false;
+            mouse.dragDistance = 0;
         });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!mouse.dragging) return;
+            const rect = canvas.getBoundingClientRect();
+            const screenX = e.clientX - rect.left;
+            const screenY = e.clientY - rect.top;
+            
+            const dx = screenX - mouse.lastX;
+            const dy = screenY - mouse.lastY;
+            mouse.dragDistance += Math.sqrt(dx*dx + dy*dy);
+            
+            mouse.dx += dx * 0.002;
+            mouse.dy += dy * 0.002;
+            
+            mouse.lastX = screenX;
+            mouse.lastY = screenY;
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (gameState.challengeActive) return;
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const screenX = touch.clientX - rect.left;
+            const screenY = touch.clientY - rect.top;
+            setMoveTarget(screenX, screenY);
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, false);
 
         // ============== WORLD GENERATION ==============
         const worldNoise = {
@@ -218,9 +247,33 @@
                 pos: new Vec3(pos.x, h + 2, pos.z),
                 name: pos.name,
                 active: false,
-                distToPlayer: 999
+                distToPlayer: 999,
+                color: ['#ff10f0', '#00ffff', '#39ff14', '#ffff00'][Math.floor(Math.random() * 4)]
             });
         });
+
+        // ============== BUILDINGS ==============
+        const buildings = [];
+        function generateBuildings() {
+            for (let i = 0; i < 12; i++) {
+                const x = Math.random() * 100;
+                const z = Math.random() * 100;
+                const h = worldNoise.getHeight(x, z);
+                const terrain = worldNoise.getTerrain(x, z);
+                
+                if (terrain !== 'water' && terrain !== 'stone') {
+                    buildings.push({
+                        pos: new Vec3(x, h, z),
+                        width: 3 + Math.random() * 4,
+                        depth: 4 + Math.random() * 5,
+                        height: 4 + Math.random() * 3,
+                        color: ['#ff4444', '#4444ff', '#44ff44', '#ffff44'][Math.floor(Math.random() * 4)],
+                        distToPlayer: 999
+                    });
+                }
+            }
+        }
+        generateBuildings();
 
         // ============== CHALLENGE POOL ==============
         const challenges = [
@@ -353,33 +406,137 @@
             });
         }
 
+        function drawNPCCharacter(pos, color, name) {
+            const headPos = pos.add(new Vec3(0, 1.8, 0));
+            const bodyPos = pos.add(new Vec3(0, 0.8, 0));
+            const legPos = pos.add(new Vec3(0, -0.2, 0));
+            
+            // Head
+            const projHead = project3D(headPos);
+            if (projHead && projHead.depth > 0) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(projHead.x, projHead.y, 10, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Eyes
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(projHead.x - 4, projHead.y - 2, 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(projHead.x + 4, projHead.y - 2, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Body
+            const projBody = project3D(bodyPos);
+            if (projBody && projBody.depth > 0) {
+                ctx.fillStyle = color;
+                ctx.fillRect(projBody.x - 6, projBody.y - 12, 12, 20);
+            }
+            
+            // Legs
+            const projLeg = project3D(legPos);
+            if (projLeg && projLeg.depth > 0) {
+                ctx.fillStyle = color;
+                ctx.fillRect(projLeg.x - 3, projLeg.y, 3, 8);
+                ctx.fillRect(projLeg.x, projLeg.y, 3, 8);
+            }
+            
+            // Name tag
+            if (projHead && projHead.depth > 0) {
+                ctx.fillStyle = color;
+                ctx.font = '11px monospace';
+                ctx.fillText(name, projHead.x - 20, projHead.y - 25);
+            }
+        }
+
+        function drawBuilding(building) {
+            const half_w = building.width / 2;
+            const half_d = building.depth / 2;
+            const h = building.height;
+            
+            const corners = [
+                building.pos.add(new Vec3(-half_w, 0, -half_d)),
+                building.pos.add(new Vec3(half_w, 0, -half_d)),
+                building.pos.add(new Vec3(half_w, 0, half_d)),
+                building.pos.add(new Vec3(-half_w, 0, half_d)),
+                building.pos.add(new Vec3(-half_w, h, -half_d)),
+                building.pos.add(new Vec3(half_w, h, -half_d)),
+                building.pos.add(new Vec3(half_w, h, half_d)),
+                building.pos.add(new Vec3(-half_w, h, half_d))
+            ];
+            
+            const proj = corners.map(c => {
+                const p = project3D(c);
+                return p || { x: -1000, y: -1000, depth: 99999 };
+            });
+            
+            ctx.strokeStyle = building.color;
+            ctx.fillStyle = building.color;
+            ctx.globalAlpha = 0.6;
+            ctx.lineWidth = 2;
+            
+            // Draw building faces
+            const faces = [
+                [0, 1, 5, 4],
+                [1, 2, 6, 5],
+                [2, 3, 7, 6],
+                [3, 0, 4, 7]
+            ];
+            
+            faces.forEach(face => {
+                const [a, b, c, d] = face;
+                ctx.beginPath();
+                ctx.moveTo(proj[a].x, proj[a].y);
+                ctx.lineTo(proj[b].x, proj[b].y);
+                ctx.lineTo(proj[c].x, proj[c].y);
+                ctx.lineTo(proj[d].x, proj[d].y);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            });
+            
+            ctx.globalAlpha = 1;
+        }
+
         function drawNPCs() {
             npcs.forEach(npc => {
                 npc.distToPlayer = camera.pos.dist(npc.pos);
-                const proj = project3D(npc.pos);
+                drawNPCCharacter(npc.pos, npc.color, npc.name);
                 
-                if (proj && proj.depth > 0) {
-                    const size = 20000 / (proj.depth * proj.depth);
-                    
-                    const isClose = npc.distToPlayer < 15;
-                    const color = isClose ? '#ff10f0' : '#00ffff';
-                    
-                    drawCube(npc.pos, 1, color, proj.depth);
-                    
-                    ctx.fillStyle = color;
-                    ctx.font = '12px monospace';
-                    ctx.fillText(npc.name, proj.x - 20, proj.y - 40);
-                    
-                    if (isClose) {
+                const isClose = npc.distToPlayer < 15;
+                if (isClose) {
+                    const proj = project3D(npc.pos);
+                    if (proj && proj.depth > 0) {
                         ctx.strokeStyle = '#ff10f0';
                         ctx.lineWidth = 2;
                         ctx.globalAlpha = 0.5;
                         ctx.beginPath();
-                        ctx.arc(proj.x, proj.y, 30, 0, Math.PI * 2);
+                        ctx.arc(proj.x, proj.y, 35, 0, Math.PI * 2);
                         ctx.stroke();
                         ctx.globalAlpha = 1;
                     }
                 }
+            });
+        }
+
+        function drawBuildings() {
+            const renderDist = 80;
+            const visibleBuildings = buildings.filter(b => {
+                const dist = camera.pos.dist(b.pos);
+                return dist < renderDist;
+            });
+            
+            visibleBuildings.sort((a, b) => {
+                const distA = camera.pos.dist(a.pos);
+                const distB = camera.pos.dist(b.pos);
+                return distA - distB;
+            });
+            
+            visibleBuildings.forEach(building => {
+                drawBuilding(building);
             });
         }
 
@@ -510,18 +667,45 @@
             setTimeout(() => toast.remove(), 2000);
         }
 
-        // ============== UPDATE ==============
-        function updateCamera() {
-            const speed = 40; // units per second
+        function setMoveTarget(screenX, screenY) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const relX = screenX - centerX;
+            const relY = screenY - centerY;
+            
             const forward = camera.getForward();
             const right = camera.getRight();
             
-            if (keys['w']) camera.pos = camera.pos.add(forward.mul(speed * 0.016));
-            if (keys['s']) camera.pos = camera.pos.add(forward.mul(-speed * 0.016));
-            if (keys['d']) camera.pos = camera.pos.add(right.mul(speed * 0.016));
-            if (keys['a']) camera.pos = camera.pos.add(right.mul(-speed * 0.016));
-            if (keys[' ']) camera.pos.y += speed * 0.016;
-            if (keys['c']) camera.pos.y -= speed * 0.016;
+            const screenDist = Math.sqrt(relX*relX + relY*relY);
+            const moveDir = forward.mul(-relY / 200).add(right.mul(relX / 200)).normalize();
+            const targetDist = Math.min(30, screenDist / 10);
+            
+            movement.targetPos = camera.pos.add(moveDir.mul(targetDist));
+            movement.targetPos.x = Math.max(0, Math.min(100, movement.targetPos.x));
+            movement.targetPos.z = Math.max(0, Math.min(100, movement.targetPos.z));
+            movement.isMoving = true;
+        }
+
+        // ============== UPDATE ==============
+        function updateCamera() {
+            const speed = 35; // units per second
+            const stopDist = 0.5;
+            
+            if (movement.isMoving && movement.targetPos) {
+                const diff = movement.targetPos.sub(camera.pos);
+                const dist = Math.sqrt(diff.x*diff.x + diff.z*diff.z);
+                
+                if (dist > stopDist) {
+                    const dir = diff.normalize();
+                    camera.pos = camera.pos.add(dir.mul(speed * 0.016));
+                    gameState.playerSpeed = speed * 0.016;
+                } else {
+                    movement.isMoving = false;
+                    gameState.playerSpeed = 0;
+                }
+            } else {
+                gameState.playerSpeed = 0;
+            }
             
             // Clamp position
             camera.pos.x = Math.max(0, Math.min(100, camera.pos.x));
@@ -534,9 +718,6 @@
             camera.euler.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, camera.euler.x));
             mouse.dx = 0;
             mouse.dy = 0;
-            
-            // Calculate speed for HUD
-            gameState.playerSpeed = (speed * 0.016);
         }
 
         function updateHUD() {
@@ -555,6 +736,7 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             drawTerrain();
+            drawBuildings();
             drawNPCs();
             drawPlayer();
             
