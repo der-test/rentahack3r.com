@@ -16,8 +16,18 @@
   --glitch-offset: 2px;
 }
 
-/* Hide default header */
-div #header {
+/* Hide default header and all GitHub branding */
+div #header,
+header,
+.header,
+#github-header,
+.github-header {
+  display: none !important;
+}
+
+/* Hide header wrapper and container */
+div.header-wrapper,
+div.page-header {
   display: none !important;
 }
 
