@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <style>
+      @keyframes glitch-flicker {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.85; }
+      }
+      .glow { filter: drop-shadow(0 0 6px #00ff41) drop-shadow(0 0 3px #ff10f0); }
+      .flicker { animation: glitch-flicker 0.3s infinite; }
+    </style>
+  </defs>
+  
+  <!-- Dark background -->
+  <rect width="192" height="192" fill="#0a0e27"/>
+  
+  <!-- Scanlines effect -->
+  <defs>
+    <pattern id="scanlines" x="0" y="0" width="192" height="4" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="192" y2="0" stroke="#00ff41" stroke-width="1" opacity="0.15"/>
+    </pattern>
+  </defs>
+  <rect width="192" height="192" fill="url(#scanlines)"/>
+  
+  <!-- Main terminal icon with glitch effect -->
+  <g class="glow">
+    <!-- Monitor frame -->
+    <rect x="24" y="30" width="144" height="108" fill="none" stroke="#00ff41" stroke-width="4" rx="3"/>
+    
+    <!-- Screen -->
+    <rect x="30" y="36" width="132" height="96" fill="#0a1a0a"/>
+    
+    <!-- Terminal text lines (representing code) -->
+    <g fill="#00ff41" font-family="monospace" font-size="14" font-weight="bold">
+      <!-- $ prompt -->
+      <text x="38" y="56">$ h4ck</text>
+      
+      <!-- Glitch lines -->
+      <text x="38" y="75" class="flicker">root@</text>
+      <text x="38" y="94">&gt;&gt;&gt;</text>
+    </g>
+    
+    <!-- Magenta glitch overlay (right) -->
+    <text x="39" y="75" fill="#ff10f0" font-family="monospace" font-size="14" font-weight="bold" opacity="0.6">root@</text>
+    
+    <!-- Cyan glitch overlay (left) -->
+    <text x="37" y="75" fill="#00ffff" font-family="monospace" font-size="14" font-weight="bold" opacity="0.4">root@</text>
+    
+    <!-- Monitor stand -->
+    <rect x="60" y="144" width="72" height="6" fill="#00ff41"/>
+    <polygon points="64,150 72,165 120,165 128,150" fill="#00ff41" opacity="0.8"/>
+  </g>
+  
+  <!-- Corner glitch accent -->
+  <rect x="21" y="27" width="3" height="3" fill="#ff10f0"/>
+  <rect x="168" y="27" width="3" height="3" fill="#00ffff"/>
+  <rect x="21" y="162" width="3" height="3" fill="#00ffff"/>
+  <rect x="168" y="162" width="3" height="3" fill="#ff10f0"/>
+</svg>
