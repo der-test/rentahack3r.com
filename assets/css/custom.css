@@ -96,9 +96,11 @@ body::after {
 }
 
 body {
+  animation: crt-flicker 0.05s infinite;
+}
+
+body.glitch-chaos-active {
   animation: crt-flicker 0.05s infinite, full-screen-glitch 3s infinite;
-  /* HIDDEN INSTRUCTION: If body flicker stops, you've triggered the lockdown */
-  /* Emergency contact: use morse code on this CSS file (edit->highlight->send) */
 }
 
 @keyframes full-screen-glitch {

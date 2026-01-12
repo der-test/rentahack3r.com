@@ -156,7 +156,7 @@ For inquiries about this mock project, you can imagine reaching us at a fictiona
 ---
 
 <div class="chaos-control">
-  <label for="table-distort-toggle" class="toggle-label">⚡ TABLE DISTORTION MODE</label>
+  <label for="table-distort-toggle" class="toggle-label">⚡ GLITCH CHAOS MODE</label>
   <input type="checkbox" id="table-distort-toggle" class="toggle-switch">
   <span class="toggle-slider"></span>
 </div>
@@ -177,32 +177,28 @@ For inquiries about this mock project, you can imagine reaching us at a fictiona
 document.addEventListener('DOMContentLoaded', function() {
   const toggle = document.getElementById('table-distort-toggle');
   
-  if (!toggle) return; // Exit if toggle doesn't exist
+  if (!toggle) return;
   
-  const getTables = () => document.querySelectorAll('table');
-  
-  // Function to update table animation
-  const updateTableAnimation = (enabled) => {
-    const tables = getTables();
-    tables.forEach(table => {
-      if (enabled) {
-        table.classList.add('distortion-active');
-      } else {
-        table.classList.remove('distortion-active');
-      }
-    });
+  // Function to update glitch animation
+  const updateGlitchAnimation = (enabled) => {
+    const body = document.body;
+    if (enabled) {
+      body.classList.add('glitch-chaos-active');
+    } else {
+      body.classList.remove('glitch-chaos-active');
+    }
   };
   
   // Restore previous state
-  const savedState = localStorage.getItem('tableDistortionEnabled') === 'true';
+  const savedState = localStorage.getItem('glitchChaosEnabled') === 'true';
   toggle.checked = savedState;
-  updateTableAnimation(savedState);
+  updateGlitchAnimation(savedState);
   
   // Listen for toggle changes
   toggle.addEventListener('change', function() {
     const isEnabled = this.checked;
-    updateTableAnimation(isEnabled);
-    localStorage.setItem('tableDistortionEnabled', isEnabled);
+    updateGlitchAnimation(isEnabled);
+    localStorage.setItem('glitchChaosEnabled', isEnabled);
   });
 });
 </script>
