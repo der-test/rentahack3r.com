@@ -945,617 +945,533 @@
         }
 
         function createWardialingChallenge(board, timerInterval) {
-            const challengeData = {
-                targetSequences: Math.floor(3 + gameState.difficulty),
-                completedSequences: 0,
-                targetNumber: [],
-                currentTarget: [],
-                isDialing: false,
-                selectedDigit: null
-            };
-
-            const wardialingBoard = document.createElement('div');
-            wardialingBoard.className = 'wardialing-board';
-            board.appendChild(wardialingBoard);
-
-            // Create target display
-            const targetDiv = document.createElement('div');
-            targetDiv.className = 'phone-line';
-            targetDiv.style.color = '#ff10f0';
-            targetDiv.style.textShadow = '0 0 10px #ff10f0, 0 0 20px #ff10f0';
-            targetDiv.style.borderColor = '#ff10f0';
-            targetDiv.style.background = 'rgba(255, 16, 240, 0.2)';
-            targetDiv.style.fontSize = '1.3rem';
-            targetDiv.style.fontWeight = 'bold';
-            targetDiv.textContent = `Target: `;
-            wardialingBoard.appendChild(targetDiv);
-
-            // Create status display
-            const statusDiv = document.createElement('div');
-            statusDiv.className = 'phone-line';
-            statusDiv.style.color = '#00ffff';
-            statusDiv.style.textShadow = '0 0 10px #00ffff, 0 0 20px #00ffff';
-            statusDiv.style.borderColor = '#00ffff';
-            statusDiv.style.background = 'rgba(0, 255, 255, 0.2)';
-            statusDiv.style.fontSize = '1.3rem';
-            statusDiv.style.fontWeight = 'bold';
-            statusDiv.textContent = `Dialed: `;
-            wardialingBoard.appendChild(statusDiv);
-
-            // Create rotary phone
-            const phoneContainer = document.createElement('div');
-            phoneContainer.className = 'rotary-phone';
-            wardialingBoard.appendChild(phoneContainer);
-
-            const dial = document.createElement('div');
-            dial.className = 'rotary-dial';
-            phoneContainer.appendChild(dial);
-
-            // Create finger stop (metal barrier at bottom-right)
-            const fingerStop = document.createElement('div');
-            fingerStop.style.position = 'absolute';
-            fingerStop.style.width = '20px';
-            fingerStop.style.height = '20px';
-            fingerStop.style.background = '#666';
-            fingerStop.style.border = '2px solid #999';
-            fingerStop.style.borderRadius = '3px';
-            fingerStop.style.right = '10px';
-            fingerStop.style.bottom = '15px';
-            fingerStop.style.zIndex = '10';
-            phoneContainer.appendChild(fingerStop);
-
-            // Create dial numbers (0-9 in a circle)
-            const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
-            const fingerStopAngle = 90; // Finger stop position (bottom-right)
+            // DECRYPTION - Caesar Cipher Breaking
+            const messages = ['HELLO WORLD', 'SECURITY FIRST', 'CODE BREAKER', 'HACKER ELITE', 'DIGITAL FORTRESS'];
+            const targetMessage = messages[Math.floor(Math.random() * messages.length)];
+            const shiftAmount = Math.floor(Math.random() * 25) + 1;
             
-            numbers.forEach((num, i) => {
-                const angle = (i * 36) - 90; // Start from top
-                const radius = 100;
-                const x = Math.cos((angle * Math.PI) / 180) * radius;
-                const y = Math.sin((angle * Math.PI) / 180) * radius;
-
-                const fingerHole = document.createElement('div');
-                fingerHole.className = 'rotary-finger-hole';
-                fingerHole.textContent = num;
-                fingerHole.style.left = `calc(50% + ${x}px - 22.5px)`;
-                fingerHole.style.top = `calc(50% + ${y}px - 22.5px)`;
-                fingerHole.dataset.digit = num;
-                fingerHole.dataset.angle = angle;
-                
-                fingerHole.addEventListener('mousedown', (e) => startDialing(e, num, angle));
-                fingerHole.addEventListener('touchstart', (e) => startDialing(e, num, angle), { passive: false });
-                
-                dial.appendChild(fingerHole);
+            const encryptedMessage = targetMessage.split('').map(char => {
+                if (char === ' ') return ' ';
+                const code = char.charCodeAt(0);
+                const shifted = String.fromCharCode(((code - 65 + shiftAmount) % 26) + 65);
+                return shifted;
+            }).join('');
+            
+            const challengeData = {
+                targetShift: shiftAmount,
+                currentShift: 0,
+                decoded: false
+            };
+            
+            const decryptBoard = document.createElement('div');
+            decryptBoard.style.display = 'flex';
+            decryptBoard.style.flexDirection = 'column';
+            decryptBoard.style.alignItems = 'center';
+            decryptBoard.style.gap = '30px';
+            decryptBoard.style.width = '100%';
+            board.appendChild(decryptBoard);
+            
+            const encryptedDisplay = document.createElement('div');
+            encryptedDisplay.style.color = '#ff10f0';
+            encryptedDisplay.style.fontSize = '1.3rem';
+            encryptedDisplay.style.fontWeight = 'bold';
+            encryptedDisplay.style.textShadow = '0 0 20px #ff10f0';
+            encryptedDisplay.style.padding = '15px';
+            encryptedDisplay.style.border = '2px solid #ff10f0';
+            encryptedDisplay.style.background = 'rgba(255, 16, 240, 0.1)';
+            encryptedDisplay.style.borderRadius = '5px';
+            encryptedDisplay.textContent = 'ENCRYPTED: ' + encryptedMessage;
+            decryptBoard.appendChild(encryptedDisplay);
+            
+            const decodedDisplay = document.createElement('div');
+            decodedDisplay.style.color = '#39ff14';
+            decodedDisplay.style.fontSize = '1.3rem';
+            decodedDisplay.style.fontWeight = 'bold';
+            decodedDisplay.style.textShadow = '0 0 20px #39ff14';
+            decodedDisplay.style.padding = '15px';
+            decodedDisplay.style.border = '2px solid #39ff14';
+            decodedDisplay.style.background = 'rgba(57, 255, 20, 0.1)';
+            decodedDisplay.style.borderRadius = '5px';
+            decodedDisplay.style.minHeight = '30px';
+            decodedDisplay.textContent = 'DECRYPTED: ???';
+            decryptBoard.appendChild(decodedDisplay);
+            
+            const shiftDisplay = document.createElement('div');
+            shiftDisplay.style.color = '#00ffff';
+            shiftDisplay.style.fontSize = '1.1rem';
+            shiftDisplay.style.fontWeight = 'bold';
+            shiftDisplay.textContent = `Shift: ${challengeData.currentShift}`;
+            decryptBoard.appendChild(shiftDisplay);
+            
+            const sliderContainer = document.createElement('div');
+            sliderContainer.style.display = 'flex';
+            sliderContainer.style.gap = '15px';
+            sliderContainer.style.alignItems = 'center';
+            decryptBoard.appendChild(sliderContainer);
+            
+            const slider = document.createElement('input');
+            slider.type = 'range';
+            slider.min = '0';
+            slider.max = '25';
+            slider.value = '0';
+            slider.style.width = '200px';
+            slider.style.height = '10px';
+            slider.style.cursor = 'pointer';
+            
+            const minBtn = document.createElement('button');
+            minBtn.textContent = '◀';
+            minBtn.className = 'btn';
+            minBtn.style.padding = '8px 15px';
+            minBtn.onclick = () => {
+                challengeData.currentShift = Math.max(0, challengeData.currentShift - 1);
+                slider.value = challengeData.currentShift;
+                updateDecrypted();
+            };
+            
+            const maxBtn = document.createElement('button');
+            maxBtn.textContent = '▶';
+            maxBtn.className = 'btn';
+            maxBtn.style.padding = '8px 15px';
+            maxBtn.onclick = () => {
+                challengeData.currentShift = Math.min(25, challengeData.currentShift + 1);
+                slider.value = challengeData.currentShift;
+                updateDecrypted();
+            };
+            
+            sliderContainer.appendChild(minBtn);
+            sliderContainer.appendChild(slider);
+            sliderContainer.appendChild(maxBtn);
+            
+            slider.addEventListener('input', (e) => {
+                challengeData.currentShift = parseInt(e.target.value);
+                updateDecrypted();
             });
-
-            let currentRotation = 0;
-            let isDragging = false;
-            let dragStartRotation = 0;
-            let dragStartClientY = 0;
-            let selectedDigitAngle = 0;
-
-            function startDialing(e, digit, startAngle) {
-                if (challengeData.isDialing) return;
-                e.preventDefault();
+            
+            function updateDecrypted() {
+                shiftDisplay.textContent = `Shift: ${challengeData.currentShift}`;
                 
-                challengeData.selectedDigit = digit;
-                selectedDigitAngle = startAngle;
-                isDragging = true;
-                dragStartRotation = currentRotation;
-                dragStartClientY = e.clientY || e.touches?.[0]?.clientY || 0;
+                const decoded = encryptedMessage.split('').map(char => {
+                    if (char === ' ') return ' ';
+                    const code = char.charCodeAt(0);
+                    const unshifted = String.fromCharCode(((code - 65 - challengeData.currentShift + 260) % 26) + 65);
+                    return unshifted;
+                }).join('');
                 
-                dial.style.cursor = 'grabbing';
-            }
-
-            // Calculate max rotation to finger stop for this digit
-            function getMaxRotation(digitAngle) {
-                // Normalize angles
-                let normalized = ((digitAngle % 360) + 360) % 360;
-                let stopAngle = ((fingerStopAngle % 360) + 360) % 360;
+                decodedDisplay.textContent = 'DECRYPTED: ' + decoded;
                 
-                // Maximum clockwise rotation to reach the stop
-                let maxRot = stopAngle - normalized;
-                if (maxRot < 0) maxRot += 360;
-                if (maxRot > 180) maxRot -= 360; // Only rotate up to 180° (half circle)
+                gameState.totalAttempts++;
                 
-                return maxRot;
-            }
-
-            // Create named handlers for proper cleanup
-            const handleMouseMove = (e) => {
-                if (!isDragging) return;
-                
-                const clientY = e.clientY;
-                const deltaY = dragStartClientY - clientY; // Upward drag = positive
-                
-                // Convert drag distance to rotation (clockwise = positive rotation)
-                const maxRotation = getMaxRotation(selectedDigitAngle);
-                let newRotation = dragStartRotation + (deltaY * 0.5); // Scale the drag
-                
-                // Constrain to max rotation for this digit
-                newRotation = Math.min(maxRotation, Math.max(0, newRotation));
-                
-                currentRotation = newRotation;
-                dial.style.transform = `rotate(${currentRotation}deg)`;
-            };
-
-            const handleTouchMove = (e) => {
-                if (!isDragging) return;
-                
-                const clientY = e.touches[0].clientY;
-                const deltaY = dragStartClientY - clientY;
-                
-                const maxRotation = getMaxRotation(selectedDigitAngle);
-                let newRotation = dragStartRotation + (deltaY * 0.5);
-                
-                newRotation = Math.min(maxRotation, Math.max(0, newRotation));
-                
-                currentRotation = newRotation;
-                dial.style.transform = `rotate(${currentRotation}deg)`;
-            };
-
-            const handleMouseUp = () => {
-                if (isDragging) {
-                    isDragging = false;
-                    dial.style.cursor = 'grab';
-                    handleDialRelease();
+                if (decoded === targetMessage && !challengeData.decoded) {
+                    challengeData.decoded = true;
+                    gameState.totalCorrect++;
+                    updateScore(20 + gameState.difficulty * 5);
+                    decodedDisplay.style.color = '#ff10f0';
+                    decodedDisplay.style.borderColor = '#ff10f0';
+                    clearInterval(timerInterval);
+                    setTimeout(() => nextChallenge(), 800);
                 }
-            };
-
-            const handleTouchEnd = () => {
-                if (isDragging) {
-                    isDragging = false;
-                    handleDialRelease();
-                }
-            };
-
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('touchmove', handleTouchMove, { passive: true });
-            document.addEventListener('mouseup', handleMouseUp);
-            document.addEventListener('touchend', handleTouchEnd);
-
-            function handleDialRelease() {
-                challengeData.isDialing = true;
-                const dialedDigit = challengeData.selectedDigit;
-
-                // Animate dial return to home position
-                dial.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                dial.style.transform = `rotate(0deg)`;
-                
-                setTimeout(() => {
-                    dial.style.transition = '';
-                    currentRotation = 0;
-
-                    // Check if matches target
-                    const targetDigit = challengeData.currentTarget[challengeData.targetNumber.length];
-                    const isCorrect = dialedDigit === targetDigit;
-
-                    // Record digit
-                    challengeData.targetNumber.push(dialedDigit);
-                    gameState.totalAttempts++;
-                    
-                    if (isCorrect) {
-                        gameState.totalCorrect++;
-                        updateScore(15 + gameState.difficulty * 3);
-                        statusDiv.textContent = `Dialed: ${challengeData.targetNumber.join('-')}`;
-                        statusDiv.classList.add('success');
-                        setTimeout(() => statusDiv.classList.remove('success'), 400);
-                    } else {
-                        updateScore(-10);
-                        statusDiv.textContent = `Dialed: ${challengeData.targetNumber.join('-')} ❌`;
-                        statusDiv.classList.add('fail');
-                        setTimeout(() => statusDiv.classList.remove('fail'), 400);
-                    }
-
-                    // Check if sequence complete
-                    if (challengeData.targetNumber.length >= challengeData.currentTarget.length) {
-                        const sequenceCorrect = challengeData.targetNumber.every((d, i) => d === challengeData.currentTarget[i]);
-                        
-                        if (sequenceCorrect) {
-                            challengeData.completedSequences++;
-                            statusDiv.textContent = `✓ Sequence ${challengeData.completedSequences}/${challengeData.targetSequences} complete`;
-                            statusDiv.classList.add('success');
-                            
-                            setTimeout(() => {
-                                challengeData.isDialing = false;
-                                if (challengeData.completedSequences >= challengeData.targetSequences) {
-                                    clearInterval(timerInterval);
-                                    // Clean up event listeners
-                                    document.removeEventListener('mousemove', handleMouseMove);
-                                    document.removeEventListener('touchmove', handleTouchMove);
-                                    document.removeEventListener('mouseup', handleMouseUp);
-                                    document.removeEventListener('touchend', handleTouchEnd);
-                                    nextChallenge();
-                                } else {
-                                    generateNextTarget();
-                                }
-                            }, 800);
-                        } else {
-                            statusDiv.textContent = `Sequence failed. Restarting...`;
-                            statusDiv.classList.add('fail');
-                            setTimeout(() => {
-                                challengeData.targetNumber = [];
-                                statusDiv.textContent = `Dialed: `;
-                                statusDiv.classList.remove('fail');
-                                challengeData.isDialing = false;
-                            }, 1000);
-                        }
-                    } else {
-                        challengeData.isDialing = false;
-                    }
-                }, 600);
             }
-
-            function generateNextTarget() {
-                const targetLength = 2 + Math.floor(gameState.difficulty);
-                challengeData.currentTarget = [];
-                for (let i = 0; i < targetLength; i++) {
-                    challengeData.currentTarget.push(Math.floor(Math.random() * 10));
-                }
-                challengeData.targetNumber = [];
-                targetDiv.textContent = `Target: ${challengeData.currentTarget.join('-')}`;
-                statusDiv.textContent = `Dialed: `;
-            }
-
-            generateNextTarget();
         }
 
         function createSocialChallenge(board, timerInterval) {
-            const commands = ['CONNECT', 'BYPASS', 'EXPLOIT', 'ACCESS', 'DECRYPT', 'EXTRACT'];
-            const sequenceLength = 3 + Math.floor(gameState.difficulty);
-            const targetSequences = 3 + Math.floor(gameState.difficulty * 0.5);
-            const sequence = Array(sequenceLength).fill().map(() => commands[Math.floor(Math.random() * commands.length)]);
-
+            // PACKET REASSEMBLY - Drag packets to correct order
+            const packetCount = 4 + Math.floor(gameState.difficulty * 0.5);
+            const packets = Array(packetCount).fill(0).map((_, i) => ({
+                id: i,
+                label: `PKT-${i + 1}`,
+                sequenceNum: Math.floor(Math.random() * 1000) + (i * 100)
+            })).sort(() => Math.random() - 0.5);
+            
+            const correctOrder = packets.slice().sort((a, b) => a.sequenceNum - b.sequenceNum);
+            
             const challengeData = {
-                sequence: sequence,
-                currentIndex: 0,
-                timerInterval: timerInterval,
-                correctSequences: 0,
-                targetSequences: targetSequences,
-                attempts: 0
+                packets: packets,
+                correctOrder: correctOrder,
+                userOrder: [],
+                completed: false
             };
-
-            const sequenceBoard = document.createElement('div');
-            sequenceBoard.className = 'sequence-board';
-            board.appendChild(sequenceBoard);
-
-            // Display sequence once at start
-            sequence.forEach((cmd, idx) => {
-                setTimeout(() => {
-                    const btn = sequenceBoard.querySelector(`[data-cmd="${cmd}"]`);
-                    if (btn) btn.classList.add('highlight');
-                    setTimeout(() => {
-                        if (btn) btn.classList.remove('highlight');
-                    }, 300);
-                }, idx * 400);
-            });
-
-            commands.forEach(cmd => {
-                const btn = document.createElement('button');
-                btn.className = 'sequence-button';
-                btn.textContent = cmd;
-                btn.dataset.cmd = cmd;
-
-                const handleTap = () => {
-                    challengeData.attempts++;
-                    gameState.totalAttempts++;
-
-                    if (cmd === sequence[challengeData.currentIndex]) {
-                        btn.classList.add('correct');
-                        gameState.totalCorrect++;
-                        updateScore(15 + gameState.difficulty * 3);
-                        challengeData.currentIndex++;
-
-                        if (challengeData.currentIndex >= sequence.length) {
-                            challengeData.correctSequences++;
-                            challengeData.currentIndex = 0;
-                            
-                            // Check if target sequences reached
-                            if (challengeData.correctSequences >= challengeData.targetSequences) {
-                                clearInterval(timerInterval);
-                                nextChallenge();
-                                return;
-                            }
-                            
-                            // Restart sequence for next round
-                            setTimeout(() => {
-                                sequence.forEach((cmd, idx) => {
-                                    setTimeout(() => {
-                                        const btn = sequenceBoard.querySelector(`[data-cmd="${cmd}"]`);
-                                        if (btn) btn.classList.add('highlight');
-                                        setTimeout(() => {
-                                            if (btn) btn.classList.remove('highlight');
-                                        }, 300);
-                                    }, idx * 400);
-                                });
-                            }, 500);
-                        }
-
-                        setTimeout(() => btn.classList.remove('correct'), 500);
+            
+            const packetBoard = document.createElement('div');
+            packetBoard.style.display = 'flex';
+            packetBoard.style.flexDirection = 'column';
+            packetBoard.style.gap = '20px';
+            packetBoard.style.width = '100%';
+            packetBoard.style.alignItems = 'center';
+            board.appendChild(packetBoard);
+            
+            const instruction = document.createElement('div');
+            instruction.style.color = '#00ffff';
+            instruction.style.fontSize = '1rem';
+            instruction.textContent = 'Arrange packets in sequence order (click to select)';
+            packetBoard.appendChild(instruction);
+            
+            const sourceContainer = document.createElement('div');
+            sourceContainer.style.display = 'grid';
+            sourceContainer.style.gridTemplateColumns = `repeat(${Math.min(2, packetCount)}, 1fr)`;
+            sourceContainer.style.gap = '10px';
+            sourceContainer.style.marginBottom = '10px';
+            packetBoard.appendChild(sourceContainer);
+            
+            const targetContainer = document.createElement('div');
+            targetContainer.style.display = 'flex';
+            targetContainer.style.flexWrap = 'wrap';
+            targetContainer.style.gap = '10px';
+            targetContainer.style.justifyContent = 'center';
+            targetContainer.style.minHeight = '60px';
+            targetContainer.style.border = '2px solid #39ff14';
+            targetContainer.style.padding = '10px';
+            targetContainer.style.borderRadius = '5px';
+            targetContainer.style.background = 'rgba(57, 255, 20, 0.1)';
+            packetBoard.appendChild(targetContainer);
+            
+            packets.forEach((pkt, idx) => {
+                const pktBtn = document.createElement('button');
+                pktBtn.style.padding = '10px 15px';
+                pktBtn.style.background = '#00ff41';
+                pktBtn.style.border = '2px solid #00ff41';
+                pktBtn.style.color = '#0a0e27';
+                pktBtn.style.cursor = 'pointer';
+                pktBtn.style.fontWeight = 'bold';
+                pktBtn.style.borderRadius = '3px';
+                pktBtn.textContent = pkt.label + ` (${pkt.sequenceNum})`;
+                pktBtn.style.fontSize = '0.9rem';
+                pktBtn.dataset.pktId = pkt.id;
+                pktBtn.dataset.seqNum = pkt.sequenceNum;
+                
+                pktBtn.addEventListener('click', () => {
+                    if (challengeData.completed) return;
+                    
+                    if (pktBtn.parentElement === sourceContainer) {
+                        targetContainer.appendChild(pktBtn);
+                        challengeData.userOrder.push(parseInt(pktBtn.dataset.seqNum));
+                        gameState.totalAttempts++;
+                        checkCompletion();
                     } else {
-                        btn.classList.add('incorrect');
-                        challengeData.currentIndex = 0;
-                        setTimeout(() => btn.classList.remove('incorrect'), 500);
+                        sourceContainer.appendChild(pktBtn);
+                        const idx = challengeData.userOrder.indexOf(parseInt(pktBtn.dataset.seqNum));
+                        if (idx > -1) challengeData.userOrder.splice(idx, 1);
                     }
-                };
-
-                btn.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    handleTap();
                 });
-                btn.addEventListener('click', handleTap);
-
-                sequenceBoard.appendChild(btn);
+                
+                sourceContainer.appendChild(pktBtn);
             });
+            
+            function checkCompletion() {
+                const expectedOrder = correctOrder.map(p => p.sequenceNum);
+                const isCorrect = challengeData.userOrder.length === packetCount && 
+                                   challengeData.userOrder.every((val, i) => val === expectedOrder[i]);
+                
+                if (isCorrect && !challengeData.completed) {
+                    challengeData.completed = true;
+                    gameState.totalCorrect++;
+                    updateScore(25 + gameState.difficulty * 5);
+                    targetContainer.style.borderColor = '#ff10f0';
+                    targetContainer.style.background = 'rgba(255, 16, 240, 0.2)';
+                    clearInterval(timerInterval);
+                    setTimeout(() => nextChallenge(), 800);
+                }
+            }
         }
 
         function createExploitChallenge(board, timerInterval) {
+            // BINARY CONVERSION - Convert binary to decimal
+            const targetCount = 4 + Math.floor(gameState.difficulty);
             const challengeData = {
-                patternsCompleted: 0,
-                targetPatterns: 3 + Math.floor(gameState.difficulty),
-                patternLength: 3 + Math.floor(gameState.difficulty * 0.5),
-                timerInterval: timerInterval
+                conversionsCompleted: 0,
+                targetConversions: targetCount,
+                currentBinary: '',
+                targetDecimal: 0
             };
-
-            const firewall = document.createElement('div');
-            firewall.style.display = 'flex';
-            firewall.style.flexDirection = 'column';
-            firewall.style.alignItems = 'center';
-            firewall.style.gap = '30px';
-            firewall.style.width = '100%';
-            board.appendChild(firewall);
-
-            // Create pattern display
-            const patternDisplay = document.createElement('div');
-            patternDisplay.style.display = 'flex';
-            patternDisplay.style.gap = '10px';
-            patternDisplay.style.justifyContent = 'center';
-            firewall.appendChild(patternDisplay);
-
-            // Create input grid
-            const gridContainer = document.createElement('div');
-            gridContainer.style.display = 'grid';
-            gridContainer.style.gridTemplateColumns = `repeat(${Math.min(4, challengeData.patternLength)}, 70px)`;
-            gridContainer.style.gap = '15px';
-            gridContainer.style.justifyContent = 'center';
-            firewall.appendChild(gridContainer);
-
-            let currentPattern = [];
-            let userInput = [];
-
-            function generatePattern() {
-                currentPattern = [];
-                for (let i = 0; i < challengeData.patternLength; i++) {
-                    currentPattern.push(Math.floor(Math.random() * 4));
-                }
-                userInput = [];
-                updateDisplay();
+            
+            const binaryBoard = document.createElement('div');
+            binaryBoard.style.display = 'flex';
+            binaryBoard.style.flexDirection = 'column';
+            binaryBoard.style.gap = '20px';
+            binaryBoard.style.alignItems = 'center';
+            binaryBoard.style.width = '100%';
+            board.appendChild(binaryBoard);
+            
+            const progress = document.createElement('div');
+            progress.style.color = '#00ffff';
+            progress.style.fontSize = '1rem';
+            progress.textContent = `${challengeData.conversionsCompleted}/${challengeData.targetConversions} converted`;
+            binaryBoard.appendChild(progress);
+            
+            const binaryDisplay = document.createElement('div');
+            binaryDisplay.style.color = '#ff10f0';
+            binaryDisplay.style.fontSize = '1.5rem';
+            binaryDisplay.style.fontFamily = 'monospace';
+            binaryDisplay.style.fontWeight = 'bold';
+            binaryDisplay.style.padding = '15px';
+            binaryDisplay.style.border = '2px solid #ff10f0';
+            binaryDisplay.style.background = 'rgba(255, 16, 240, 0.1)';
+            binaryDisplay.style.borderRadius = '5px';
+            binaryDisplay.style.minWidth = '150px';
+            binaryDisplay.style.textAlign = 'center';
+            binaryBoard.appendChild(binaryDisplay);
+            
+            const answerInput = document.createElement('input');
+            answerInput.type = 'text';
+            answerInput.placeholder = 'Enter decimal value';
+            answerInput.style.padding = '10px';
+            answerInput.style.fontSize = '1rem';
+            answerInput.style.background = 'rgba(0, 255, 65, 0.1)';
+            answerInput.style.border = '2px solid #00ff41';
+            answerInput.style.color = '#00ff41';
+            answerInput.style.borderRadius = '3px';
+            answerInput.style.width = '150px';
+            answerInput.style.textAlign = 'center';
+            binaryBoard.appendChild(answerInput);
+            
+            const submitBtn = document.createElement('button');
+            submitBtn.textContent = 'CHECK';
+            submitBtn.className = 'btn primary';
+            binaryBoard.appendChild(submitBtn);
+            
+            function generateBinary() {
+                const maxBits = 5 + Math.floor(gameState.difficulty);
+                const value = Math.floor(Math.random() * Math.pow(2, maxBits));
+                challengeData.currentBinary = value.toString(2).padStart(maxBits, '0');
+                challengeData.targetDecimal = value;
+                binaryDisplay.textContent = challengeData.currentBinary;
+                answerInput.value = '';
+                answerInput.focus();
             }
-
-            function updateDisplay() {
-                patternDisplay.innerHTML = '';
-                currentPattern.forEach((val, idx) => {
-                    const box = document.createElement('div');
-                    box.style.width = '50px';
-                    box.style.height = '50px';
-                    box.style.background = ['#ff10f0', '#00ffff', '#39ff14', '#ff7700'][val];
-                    box.style.border = '2px solid #fff';
-                    box.style.borderRadius = '5px';
-                    box.style.boxShadow = `0 0 15px ${['#ff10f0', '#00ffff', '#39ff14', '#ff7700'][val]}`;
-                    if (idx < userInput.length) {
-                        const correct = userInput[idx] === currentPattern[idx];
-                        box.style.opacity = correct ? '1' : '0.3';
-                        box.textContent = correct ? '✓' : '✗';
-                        box.style.fontSize = '1.5rem';
-                        box.style.fontWeight = 'bold';
-                        box.style.color = correct ? '#39ff14' : '#ff10f0';
-                        box.style.display = 'flex';
-                        box.style.justifyContent = 'center';
-                        box.style.alignItems = 'center';
-                    }
-                    patternDisplay.appendChild(box);
-                });
-            }
-
-            // Create button grid
-            const colors = ['#ff10f0', '#00ffff', '#39ff14', '#ff7700'];
-            for (let i = 0; i < 4; i++) {
-                const btn = document.createElement('button');
-                btn.style.width = '70px';
-                btn.style.height = '70px';
-                btn.style.background = colors[i];
-                btn.style.border = 'none';
-                btn.style.borderRadius = '5px';
-                btn.style.cursor = 'pointer';
-                btn.style.boxShadow = `0 0 15px ${colors[i]}`;
-                btn.style.fontWeight = 'bold';
-                btn.style.fontSize = '1.2rem';
-                btn.style.fontFamily = 'monospace';
-                btn.style.color = '#0a0e27';
-                btn.style.transition = 'all 0.1s ease';
-                btn.textContent = i + 1;
-
-                btn.onmouseover = () => btn.style.transform = 'scale(1.1)';
-                btn.onmouseout = () => btn.style.transform = 'scale(1)';
-
-                btn.addEventListener('click', () => selectColor(i));
-                btn.addEventListener('touchstart', () => selectColor(i), { passive: true });
-
-                gridContainer.appendChild(btn);
-            }
-
-            function selectColor(colorIdx) {
-                userInput.push(colorIdx);
+            
+            function checkAnswer() {
                 gameState.totalAttempts++;
-
-                if (colorIdx === currentPattern[userInput.length - 1]) {
+                const userAnswer = parseInt(answerInput.value);
+                
+                if (userAnswer === challengeData.targetDecimal) {
                     gameState.totalCorrect++;
                     updateScore(15 + gameState.difficulty * 3);
-                } else {
-                    updateScore(-15);
-                }
-
-                updateDisplay();
-
-                if (userInput.length === currentPattern.length) {
-                    const patternCorrect = userInput.every((c, i) => c === currentPattern[i]);
+                    challengeData.conversionsCompleted++;
+                    progress.textContent = `${challengeData.conversionsCompleted}/${challengeData.targetConversions} converted`;
                     
-                    setTimeout(() => {
-                        if (patternCorrect) {
-                            challengeData.patternsCompleted++;
-                            if (challengeData.patternsCompleted >= challengeData.targetPatterns) {
-                                clearInterval(timerInterval);
-                                nextChallenge();
-                            } else {
-                                generatePattern();
-                            }
-                        } else {
-                            userInput = [];
-                            updateDisplay();
-                        }
-                    }, 800);
+                    if (challengeData.conversionsCompleted >= challengeData.targetConversions) {
+                        clearInterval(timerInterval);
+                        submitBtn.disabled = true;
+                        setTimeout(() => nextChallenge(), 800);
+                    } else {
+                        generateBinary();
+                    }
+                } else {
+                    updateScore(-5);
+                    answerInput.style.borderColor = '#ff0000';
+                    setTimeout(() => answerInput.style.borderColor = '#00ff41', 300);
                 }
             }
-
-            generatePattern();
+            
+            submitBtn.addEventListener('click', checkAnswer);
+            answerInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') checkAnswer();
+            });
+            
+            generateBinary();
         }
 
         function createExfilChallenge(board, timerInterval) {
-            const icons = ['📁', '🔐', '💾', '🖥️', '⚙️', '🔌', '📊', '🎯'];
-            const pairsCount = 4 + Math.floor(gameState.difficulty * 0.5);
-            const tiles = [];
-
-            for (let i = 0; i < pairsCount; i++) {
-                tiles.push(icons[i % icons.length], icons[i % icons.length]);
-            }
-            tiles.sort(() => Math.random() - 0.5);
-
+            // NETWORK FLOOD - Click to block incoming attack packets
             const challengeData = {
-                tiles: tiles,
-                matched: 0,
-                totalPairs: pairsCount,
-                selected: [],
-                timerInterval: timerInterval
+                attacksBlocked: 0,
+                targetBlocks: 15 + Math.floor(gameState.difficulty * 3),
+                isActive: true
             };
-
-            const exfilBoard = document.createElement('div');
-            exfilBoard.className = 'exfil-board';
-            board.appendChild(exfilBoard);
-
-            tiles.forEach((icon, idx) => {
-                const tile = document.createElement('div');
-                tile.className = 'file-tile';
-                tile.dataset.index = idx;
-                tile.dataset.icon = icon;
-                tile.textContent = '?';
-
-                const handleTap = () => {
-                    if (challengeData.selected.length < 2 && !tile.classList.contains('flipped') && !tile.classList.contains('matched')) {
-                        tile.classList.add('flipped');
-                        tile.textContent = icon;
-                        challengeData.selected.push({ tile, index: idx, icon });
-
-                        gameState.totalAttempts++;
-
-                        if (challengeData.selected.length === 2) {
-                            if (challengeData.selected[0].icon === challengeData.selected[1].icon) {
-                                gameState.totalCorrect++;
-                                updateScore(25 + gameState.difficulty * 5);
-                                challengeData.matched++;
-                                challengeData.selected.forEach(item => {
-                                    item.tile.classList.add('matched');
-                                });
-                                
-                                // Check if all pairs matched
-                                if (challengeData.matched >= challengeData.totalPairs) {
-                                    clearInterval(timerInterval);
-                                    setTimeout(() => nextChallenge(), 600);
-                                }
-                            } else {
-                                updateScore(-5);
-                                setTimeout(() => {
-                                    challengeData.selected.forEach(item => {
-                                        item.tile.classList.remove('flipped');
-                                        item.tile.textContent = '?';
-                                    });
-                                }, 800);
-                            }
-                            challengeData.selected = [];
+            
+            const floodBoard = document.createElement('div');
+            floodBoard.style.position = 'relative';
+            floodBoard.style.width = '100%';
+            floodBoard.style.height = '400px';
+            floodBoard.style.border = '2px solid #ff10f0';
+            floodBoard.style.background = 'rgba(255, 16, 240, 0.1)';
+            floodBoard.style.borderRadius = '5px';
+            floodBoard.style.overflow = 'hidden';
+            board.appendChild(floodBoard);
+            
+            const statusDisplay = document.createElement('div');
+            statusDisplay.style.position = 'absolute';
+            statusDisplay.style.top = '10px';
+            statusDisplay.style.left = '10px';
+            statusDisplay.style.color = '#39ff14';
+            statusDisplay.style.fontSize = '1rem';
+            statusDisplay.style.fontWeight = 'bold';
+            statusDisplay.style.zIndex = '100';
+            statusDisplay.textContent = `Blocked: ${challengeData.attacksBlocked}/${challengeData.targetBlocks}`;
+            floodBoard.appendChild(statusDisplay);
+            
+            function spawnPacket() {
+                if (!challengeData.isActive) return;
+                
+                const packet = document.createElement('div');
+                packet.style.position = 'absolute';
+                packet.style.width = '40px';
+                packet.style.height = '40px';
+                packet.style.background = '#ff10f0';
+                packet.style.border = '2px solid #ff10f0';
+                packet.style.borderRadius = '3px';
+                packet.style.cursor = 'pointer';
+                packet.style.display = 'flex';
+                packet.style.alignItems = 'center';
+                packet.style.justifyContent = 'center';
+                packet.style.color = '#0a0e27';
+                packet.style.fontWeight = 'bold';
+                packet.style.fontSize = '0.8rem';
+                packet.style.boxShadow = '0 0 15px #ff10f0';
+                packet.textContent = '\u26a0';
+                
+                const startX = Math.random() * (floodBoard.offsetWidth - 40);
+                const startY = -40;
+                packet.style.left = startX + 'px';
+                packet.style.top = startY + 'px';
+                
+                floodBoard.appendChild(packet);
+                
+                let blocked = false;
+                packet.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!blocked) {
+                        blocked = true;
+                        gameState.totalCorrect++;
+                        updateScore(10 + gameState.difficulty * 2);
+                        packet.style.background = '#39ff14';
+                        packet.style.borderColor = '#39ff14';
+                        packet.style.boxShadow = '0 0 15px #39ff14';
+                        packet.textContent = '\u2713';
+                        
+                        challengeData.attacksBlocked++;
+                        statusDisplay.textContent = `Blocked: ${challengeData.attacksBlocked}/${challengeData.targetBlocks}`;
+                        
+                        if (challengeData.attacksBlocked >= challengeData.targetBlocks) {
+                            challengeData.isActive = false;
+                            clearInterval(timerInterval);
+                            setTimeout(() => nextChallenge(), 600);
                         }
                     }
-                };
-
-                tile.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    handleTap();
                 });
-                tile.addEventListener('click', handleTap);
-
-                exfilBoard.appendChild(tile);
-            });
+                
+                let currentY = startY;
+                const speed = 2 + gameState.difficulty;
+                
+                const moveInterval = setInterval(() => {
+                    currentY += speed;
+                    packet.style.top = currentY + 'px';
+                    
+                    if (currentY > floodBoard.offsetHeight) {
+                        clearInterval(moveInterval);
+                        packet.remove();
+                        gameState.totalAttempts++;
+                        updateScore(-5);
+                    }
+                }, 30);
+            }
+            
+            const spawnInterval = setInterval(() => {
+                if (challengeData.isActive) spawnPacket();
+            }, 800 - gameState.difficulty * 50);
         }
 
         function createLegendaryChallenge(board, timerInterval) {
-            // Combine all challenge types - create a speed/click challenge
-            const legendaryBoard = document.createElement('div');
-            legendaryBoard.className = 'wardialing-board';
-            board.appendChild(legendaryBoard);
-
+            // PROTOCOL HANDSHAKE - Execute steps in correct sequence
+            const handshakeSteps = ['SYN', 'SYN-ACK', 'ACK', 'ESTABLISHED'];
             const challengeData = {
-                tappedCount: 0,
-                targetTaps: Math.floor(20 + (gameState.difficulty * 4)),
-                timerInterval: timerInterval,
-                spawnRate: 0.3
+                currentStep: 0,
+                completed: false,
+                roundsCompleted: 0,
+                targetRounds: 3 + Math.floor(gameState.difficulty)
             };
-
-            function spawnLegendaryZone() {
-                const zone = document.createElement('div');
-                zone.className = 'phone-line';
-                zone.textContent = '◆';
-                zone.style.left = Math.random() * (legendaryBoard.offsetWidth - 50) + 'px';
-                zone.style.top = Math.random() * (legendaryBoard.offsetHeight - 50) + 'px';
-                zone.style.color = '#ff10f0';
-
-                let tapped = false;
-                const handleTap = () => {
-                    if (!tapped) {
-                        tapped = true;
-                        zone.classList.add('tapped');
-                        challengeData.tappedCount++;
-                        gameState.totalCorrect++;
-                        gameState.totalAttempts++;
-                        updateScore(30 + gameState.difficulty * 5);
-                        
-                        // Check if target reached
-                        if (challengeData.tappedCount >= challengeData.targetTaps) {
-                            clearInterval(timerInterval);
-                            clearInterval(spawnInterval);
-                            nextChallenge();
-                        }
-                    }
-                };
-                zone.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    handleTap();
-                });
-                zone.addEventListener('click', handleTap);
-
-                legendaryBoard.appendChild(zone);
-
-                setTimeout(() => {
-                    if (!tapped) {
-                        zone.remove();
-                        gameState.totalAttempts++;
-                        updateScore(-10);
-                    }
-                }, 1500);
+            
+            const handshakeBoard = document.createElement('div');
+            handshakeBoard.style.display = 'flex';
+            handshakeBoard.style.flexDirection = 'column';
+            handshakeBoard.style.gap = '20px';
+            handshakeBoard.style.alignItems = 'center';
+            handshakeBoard.style.width = '100%';
+            board.appendChild(handshakeBoard);
+            
+            const roundDisplay = document.createElement('div');
+            roundDisplay.style.color = '#00ffff';
+            roundDisplay.style.fontSize = '1rem';
+            roundDisplay.textContent = `Handshakes: ${challengeData.roundsCompleted}/${challengeData.targetRounds}`;
+            handshakeBoard.appendChild(roundDisplay);
+            
+            const sequenceDisplay = document.createElement('div');
+            sequenceDisplay.style.color = '#ff10f0';
+            sequenceDisplay.style.fontSize = '1.2rem';
+            sequenceDisplay.style.fontWeight = 'bold';
+            sequenceDisplay.style.padding = '15px';
+            sequenceDisplay.style.border = '2px solid #ff10f0';
+            sequenceDisplay.style.background = 'rgba(255, 16, 240, 0.1)';
+            sequenceDisplay.style.borderRadius = '5px';
+            sequenceDisplay.style.minWidth = '200px';
+            sequenceDisplay.style.textAlign = 'center';
+            handshakeBoard.appendChild(sequenceDisplay);
+            
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.display = 'flex';
+            buttonContainer.style.gap = '10px';
+            buttonContainer.style.flexWrap = 'wrap';
+            buttonContainer.style.justifyContent = 'center';
+            handshakeBoard.appendChild(buttonContainer);
+            
+            function startHandshake() {
+                challengeData.currentStep = 0;
+                sequenceDisplay.textContent = 'Waiting...';
+                updateButtons();
             }
-
-            const spawnInterval = setInterval(() => {
-                if (challengeData.tappedCount < challengeData.targetTaps) {
-                    spawnLegendaryZone();
-                }
-            }, challengeData.spawnRate * 1000);
+            
+            function updateButtons() {
+                buttonContainer.innerHTML = '';
+                
+                handshakeSteps.forEach((step, idx) => {
+                    const btn = document.createElement('button');
+                    btn.textContent = step;
+                    btn.className = 'btn';
+                    
+                    if (idx === challengeData.currentStep) {
+                        btn.style.background = '#00ff41';
+                        btn.style.borderColor = '#00ff41';
+                        btn.style.color = '#0a0e27';
+                        btn.style.boxShadow = '0 0 20px #00ff41';
+                    } else if (idx < challengeData.currentStep) {
+                        btn.style.opacity = '0.5';
+                        btn.disabled = true;
+                    }
+                    
+                    btn.addEventListener('click', () => {
+                        if (idx === challengeData.currentStep) {
+                            gameState.totalCorrect++;
+                            gameState.totalAttempts++;
+                            updateScore(20 + gameState.difficulty * 4);
+                            challengeData.currentStep++;
+                            
+                            if (challengeData.currentStep >= handshakeSteps.length) {
+                                challengeData.roundsCompleted++;
+                                roundDisplay.textContent = `Handshakes: ${challengeData.roundsCompleted}/${challengeData.targetRounds}`;
+                                
+                                if (challengeData.roundsCompleted >= challengeData.targetRounds) {
+                                    clearInterval(timerInterval);
+                                    sequenceDisplay.textContent = 'COMPLETE \u2713';
+                                    sequenceDisplay.style.borderColor = '#39ff14';
+                                    sequenceDisplay.style.color = '#39ff14';
+                                    setTimeout(() => nextChallenge(), 800);
+                                } else {
+                                    setTimeout(() => startHandshake(), 500);
+                                }
+                            } else {
+                                sequenceDisplay.textContent = `Next: ${handshakeSteps[challengeData.currentStep]}`;
+                                updateButtons();
+                            }
+                        } else {
+                            updateScore(-10);
+                            startHandshake();
+                        }
+                    });
+                    
+                    buttonContainer.appendChild(btn);
+                });
+            }
+            
+            startHandshake();
         }
 
 
