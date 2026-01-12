@@ -145,7 +145,7 @@ For entertainment and educational purposes. If you think this is real, we have s
 
 ```
 $ contact --method=fictional
-> EMAIL: definitely.not.real@rentahack3r.com
+> EMAIL: xch14z@phantom.nil
 > PHONE: 555-NOT-REAL
 > LOCATION: [CLASSIFIED]
 > STATUS: DO NOT ACTUALLY CONTACT US
