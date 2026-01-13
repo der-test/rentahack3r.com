@@ -158,35 +158,19 @@ For entertainment and educational purposes. If you think this is real, we have s
 
 ---
 
-<a name="defcon-chamber"></a>
-## [◆◆◆ DEF CON TRAINING CHAMBER ◆◆◆](#contact)
+<a name="training-chamber"></a>
+## [◆◆◆ HACKER TRAINING CHAMBER ◆◆◆](#contact)
 
 ```
-$ ./defcon-simulator --access=GRANTED
+$ ./hacker-simulator --access=GRANTED
 > [STATUS: ACTIVE TRAINING]
-```
-
-Test your hacking skills in our legendary training simulator. Master the techniques of underground hackers through interactive challenges: wardialing, social engineering, system exploitation, and data theft.
-
-**Progression**: Dynamic difficulty scaling adapts to your skill level. Start as a novice and work your way up to legendary status. Can you complete all challenges and unlock the ultimate test?
-
 ```
 $ hacker-simulator --difficulty=DYNAMIC
 > [TRAINING PROTOCOL INITIATED]
 > [LEGENDARY MODE AVAILABLE AFTER 65% ACCURACY]
+
+**[LAUNCH TRAINING SIMULATOR](game/game.html)** — Master wardialing, social engineering, exploitation & data theft
 ```
-
-<div class="service-item">
-  <strong>Features:</strong>
-  - 4 progressive hacking challenges with dynamic difficulty
-  - Auto-assigned hacker names for all players
-  - Persistent high score tracking
-  - Optional legendary mode challenge
-  - Fully touch-friendly gameplay (playable on mobile & desktop)
-  - Full CRT chaos aesthetic integration
-</div>
-
-**[LAUNCH TRAINING SIMULATOR](game/game.html)** — *$ ./defcon --mode=TRAINING*
 
 **[INFILTRATION PROTOCOL](game/game2.html)** — *$ ./recon --sector=CONFERENCE*
 
@@ -203,7 +187,7 @@ $ hacker-simulator --difficulty=DYNAMIC
 ---
 
 <a name="contact"></a>
-## [◇◇◇ GET IN TOUCH ◇◇◇](#defcon-chamber)
+## [◇◇◇ GET IN TOUCH ◇◇◇](#training-chamber)
 
 ```
 $ contact --method=fictional
