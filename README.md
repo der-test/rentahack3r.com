@@ -167,12 +167,11 @@ $ ./hacker-simulator --access=GRANTED
 ```
 $ hacker-simulator --difficulty=DYNAMIC
 > [TRAINING PROTOCOL INITIATED]
-> [LEGENDARY MODE AVAILABLE AFTER 65% ACCURACY]
+> [LEGENDARY MODE LOCKED]
 
-**[LAUNCH TRAINING SIMULATOR](game/game.html)** — Master wardialing, social engineering, exploitation & data theft
-```
+**[LAUNCH TRAINING SIMULATOR](game/game.html)** — *$ ./access --system=UNKNOWN*
 
-**[INFILTRATION PROTOCOL](game/game2.html)** — *$ ./recon --sector=CONFERENCE*
+**[INFILTRATION PROTOCOL](game/game2.html)** — *$ ./recon --sector=CLASSIFIED*
 
 <div class="disclaimer">
   ⚠️ TRAINING SIMULATOR DISCLAIMER ⚠️
@@ -180,9 +179,7 @@ $ hacker-simulator --difficulty=DYNAMIC
   Both simulators are entirely <strong>fictional entertainment</strong> referencing retro hacker culture for educational purposes only.
   
   Unauthorized system access is <strong>ILLEGAL</strong>. Stay curious, stay ethical.
-  
-  For support: legends@phantom.nil
-</div>
+  </div>
 
 ---
 
@@ -325,6 +322,15 @@ document.addEventListener('DOMContentLoaded', function() {
     panicBtn.addEventListener('click', function() {
       clearInterval(moveInterval);
       showMessage('panic');
+      
+      // Activate glitch chaos mode after message disappears
+      setTimeout(function() {
+        const toggle = document.getElementById('table-distort-toggle');
+        if (toggle && !toggle.checked) {
+          toggle.checked = true;
+          toggle.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }, 2000);
     });
   });
 })();
