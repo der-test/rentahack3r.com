@@ -47,6 +47,11 @@
         <div class="hud-line"><span class="hud-label">SCORE:</span> <span class="hud-value" id="scoreDisplay">0</span></div>
         <div class="hud-line"><span class="hud-label">SYSTEMS:</span> <span class="hud-value" id="systemsDisplay">0/8</span></div>
         <div class="hud-line"><span class="hud-label">SPEED:</span> <span class="hud-value" id="speedDisplay">0.0</span></div>
+        <div style="margin-top: 8px; border-top: 1px solid #00ff41;"></div>
+        <div class="hud-line" style="margin-top: 8px;"><span class="hud-label">QUEST:</span></div>
+        <div id="questDisplay" style="font-size: 11px; color: #00ff41; line-height: 1.3; margin-left: 8px;">
+            <div id="buildingStatus">SCANNING...</div>
+        </div>
     </div>
 
     <div class="controls">
@@ -241,39 +246,85 @@
             {x: 75, z: 75, name: 'NODE_H'}
         ];
 
-        npcPositions.forEach(pos => {
-            const h = worldNoise.getHeight(pos.x, pos.z);
-            npcs.push({
-                pos: new Vec3(pos.x, h + 2, pos.z),
-                name: pos.name,
-                active: false,
-                distToPlayer: 999,
-                color: ['#ff10f0', '#00ffff', '#39ff14', '#ffff00'][Math.floor(Math.random() * 4)]
-            });
-        });
-
         // ============== BUILDINGS ==============
         const buildings = [];
+        const npcHouses = {}; // Track which NPCs live in which houses
         function generateBuildings() {
-            for (let i = 0; i < 12; i++) {
-                const x = Math.random() * 100;
-                const z = Math.random() * 100;
+            const houseCount = 10;
+            const npcIndices = [0, 1, 2, 3]; // First 4 NPCs live in houses
+            
+            for (let i = 0; i < houseCount; i++) {
+                let x = 15 + (i % 3) * 25 + Math.random() * 8;
+                let z = 15 + Math.floor(i / 3) * 25 + Math.random() * 8;
+                x = Math.max(10, Math.min(90, x));
+                z = Math.max(10, Math.min(90, z));
+                
                 const h = worldNoise.getHeight(x, z);
                 const terrain = worldNoise.getTerrain(x, z);
                 
                 if (terrain !== 'water' && terrain !== 'stone') {
-                    buildings.push({
+                    const hasNPC = i < 4;
+                    const npcIndex = hasNPC ? npcIndices[i] : -1;
+                    
+                    const house = {
                         pos: new Vec3(x, h, z),
-                        width: 3 + Math.random() * 4,
-                        depth: 4 + Math.random() * 5,
-                        height: 4 + Math.random() * 3,
-                        color: ['#ff4444', '#4444ff', '#44ff44', '#ffff44'][Math.floor(Math.random() * 4)],
-                        distToPlayer: 999
-                    });
+                        width: 6,
+                        depth: 7,
+                        height: 5,
+                        roofHeight: 3,
+                        color: ['#ff6666', '#6666ff', '#66ff66', '#ffff66', '#ff66ff', '#66ffff'][Math.floor(Math.random() * 6)],
+                        hasNPC: hasNPC,
+                        npcIndex: npcIndex,
+                        distToPlayer: 999,
+                        type: 'house',
+                        challengeCompleted: false
+                    };
+                    
+                    buildings.push(house);
+                    
+                    if (hasNPC) {
+                        npcHouses[npcIndex] = house;
+                    }
                 }
             }
         }
         generateBuildings();
+
+        // Initialize NPCs - they'll be positioned at their house locations if they have one
+        npcPositions.forEach((pos, idx) => {
+            const classTypes = ['hacker', 'agent', 'cyborg', 'ghost'];
+            const charClass = classTypes[Math.floor(Math.random() * classTypes.length)];
+            const primaryColor = ['#ff10f0', '#00ffff', '#39ff14', '#ffff00'][Math.floor(Math.random() * 4)];
+            const accentColor = ['#ff4488', '#00ff88', '#88ff00', '#ffff00'][Math.floor(Math.random() * 4)];
+            
+            // Check if this NPC lives in a house
+            let npcPos;
+            let atHome = false;
+            if (npcHouses[idx]) {
+                const house = npcHouses[idx];
+                // Place NPC at house entrance (slightly outside door)
+                npcPos = new Vec3(house.pos.x, house.pos.y + 2, house.pos.z + 3);
+                atHome = true;
+            } else {
+                // Default position in open world
+                const h = worldNoise.getHeight(pos.x, pos.z);
+                npcPos = new Vec3(pos.x, h + 2, pos.z);
+            }
+            
+            npcs.push({
+                pos: npcPos,
+                name: pos.name,
+                active: false,
+                distToPlayer: 999,
+                class: charClass,
+                primaryColor: primaryColor,
+                accentColor: accentColor,
+                skinColor: '#ff9999',
+                animationOffset: Math.random() * Math.PI * 2,
+                atHome: atHome,
+                houseIndex: npcHouses[idx] ? buildings.indexOf(npcHouses[idx]) : -1
+            });
+        });
 
         // ============== CHALLENGE POOL ==============
         const challenges = [
@@ -284,7 +335,29 @@
             { title: 'MEMORY DUMP', question: 'Buffer overflow risk?', options: ['Unbounded copy', 'Encryption', 'Checksum', 'Sorting'], correct: 0 },
             { title: 'CODE REVIEW', question: 'CSRF protection?', options: ['Token validation', 'Encryption', 'Rate limit', 'Logging'], correct: 0 },
             { title: 'INTRUSION LOG', question: 'Rootkit operates in?', options: ['Kernel space', 'User space', 'Ring 3', 'Application'], correct: 0 },
-            { title: 'THREAT SCAN', question: 'Ransomware = ?', options: ['Encrypt + ransom', 'Copy + steal', 'Delete + log', 'Stall + crash'], correct: 0 }
+            { title: 'THREAT SCAN', question: 'Ransomware = ?', options: ['Encrypt + ransom', 'Copy + steal', 'Delete + log', 'Stall + crash'], correct: 0 },
+            { title: 'AUTH BYPASS', question: 'MFA = ?', options: ['Multi-Factor Auth', 'Multiple False Auth', 'Main File Access', 'Module Factory Auto'], correct: 0 },
+            { title: 'FIREWALL CHECK', question: 'DMZ purpose?', options: ['Buffer zone network', 'Data Management Zone', 'Denial Mode Zero', 'Digital Mesh Zone'], correct: 0 },
+            { title: 'PACKET ANALYSIS', question: 'TCP vs UDP?', options: ['Reliable vs Fast', 'Fast vs Reliable', 'Text vs Unicode', 'Trusted vs Unsafe'], correct: 0 },
+            { title: 'ENCRYPTION TEST', question: 'AES key size?', options: ['128/192/256 bits', '64/128 bits', '512 bits only', '1024 bits'], correct: 0 },
+            { title: 'MALWARE SCAN', question: 'Trojan definition?', options: ['Disguised malware', 'Replicating virus', 'System slowdown', 'Network worm'], correct: 0 },
+            { title: 'PENETRATION', question: 'Phishing uses?', options: ['Social engineering', 'Code injection', 'Buffer overflow', 'DDoS attack'], correct: 0 },
+            { title: 'PRIVILEGE CHECK', question: 'Sudo allows?', options: ['Root execution', 'Network access', 'File deletion', 'System shutdown'], correct: 0 },
+            { title: 'HASH FORENSICS', question: 'MD5 is now?', options: ['Cryptographically broken', 'Still secure', 'Quantum safe', 'Industry standard'], correct: 0 },
+            { title: 'VIRUS DETECTION', question: 'Polymorphic virus?', options: ['Changes code each time', 'Spreads via email', 'Encrypts files', 'Uses macro scripts'], correct: 0 },
+            { title: 'API SECURITY', question: 'REST security?', options: ['HTTPS + tokens', 'Password only', 'IP whitelist', 'No auth needed'], correct: 0 },
+            { title: 'BIOMETRIC AUTH', question: 'Two-factor includes?', options: ['Fingerprint + code', 'Username + password', 'Email + SMS', 'PIN + card'], correct: 0 },
+            { title: 'DATA EXFILTRATION', question: 'VPN masks?', options: ['IP address', 'Username', 'Device ID', 'Encryption key'], correct: 0 },
+            { title: 'REVERSE SHELL', question: 'Remote access via?', options: ['Reverse connection', 'SSH port', 'RDP protocol', 'HTTP tunnel'], correct: 0 },
+            { title: 'BACKDOOR SCAN', question: 'Backdoor purpose?', options: ['Unauthorized access', 'System optimization', 'User authentication', 'Data compression'], correct: 0 },
+            { title: 'SESSION HIJACKING', question: 'HTTPS prevents?', options: ['Man-in-middle attacks', 'DDoS attacks', 'Brute force', 'Social engineering'], correct: 0 },
+            { title: 'SQL HARDENING', question: 'Parameterized query?', options: ['Prevents injection', 'Speeds query', 'Reduces size', 'Encrypts data'], correct: 0 },
+            { title: 'FOOTPRINT CHECK', question: 'Reconnaissance = ?', options: ['Information gathering', 'Active attack', 'Code execution', 'Network blocking'], correct: 0 },
+            { title: 'PAYLOAD ANALYSIS', question: 'Shellcode executes?', options: ['Raw machine code', 'Script commands', 'Network packets', 'System files'], correct: 0 },
+            { title: 'PUBLIC KEY', question: 'Asymmetric crypto?', options: ['Two different keys', 'One shared key', 'No encryption', 'Quantum based'], correct: 0 },
+            { title: 'CERT VALIDATION', question: 'SSL certificate chains?', options: ['Root to leaf', 'Peer to peer', 'Client to server', 'Point to point'], correct: 0 },
+            { title: 'FORENSIC SCAN', question: 'Log tampering risk?', options: ['False evidence', 'System crash', 'Data loss', 'User lockout'], correct: 0 },
+            { title: 'DEFENSE SYSTEM', question: 'IDS vs IPS?', options: ['Detect vs Prevent', 'Inspect vs Protect', 'Monitor vs Log', 'Alert vs Block'], correct: 0 }
         ];
 
         // ============== 3D RENDERING ==============
@@ -406,49 +479,300 @@
             });
         }
 
-        function drawNPCCharacter(pos, color, name) {
-            const headPos = pos.add(new Vec3(0, 1.8, 0));
-            const bodyPos = pos.add(new Vec3(0, 0.8, 0));
-            const legPos = pos.add(new Vec3(0, -0.2, 0));
+        function drawNPCCharacter(pos, npc) {
+            // Subtle animation based on NPC's animation offset
+            const animTime = Date.now() * 0.001 + npc.animationOffset;
+            const legSwing = Math.sin(animTime * 2) * 0.2; // Leg swing animation
+            const bobbing = Math.sin(animTime * 1.5) * 0.1; // Vertical bobbing
+            const armSwing = Math.cos(animTime * 1.8) * 0.15; // Arm swing
             
-            // Head
+            const headPos = pos.add(new Vec3(0, 2.0 + bobbing, 0));
+            const neckPos = pos.add(new Vec3(0, 1.5 + bobbing, 0));
+            const torsoPos = pos.add(new Vec3(0, 0.9 + bobbing * 0.8, 0));
+            const waistPos = pos.add(new Vec3(0, 0.1 + bobbing * 0.5, 0));
+            const leftShoulderPos = pos.add(new Vec3(-0.7, 1.3, 0));
+            const rightShoulderPos = pos.add(new Vec3(0.7, 1.3, 0));
+            const leftArmPos = pos.add(new Vec3(-0.8 + armSwing * 0.3, 0.7, 0));
+            const rightArmPos = pos.add(new Vec3(0.8 - armSwing * 0.3, 0.7, 0));
+            const leftHandPos = pos.add(new Vec3(-0.9 + armSwing * 0.4, 0.3, 0));
+            const rightHandPos = pos.add(new Vec3(0.9 - armSwing * 0.4, 0.3, 0));
+            const leftLegPos = pos.add(new Vec3(-0.3 + legSwing, -0.8, 0));
+            const rightLegPos = pos.add(new Vec3(0.3 - legSwing, -0.8, 0));
+            const leftFootPos = pos.add(new Vec3(-0.3 + legSwing, -1.5, 0));
+            const rightFootPos = pos.add(new Vec3(0.3 - legSwing, -1.5, 0));
+            
+            // Project all positions
             const projHead = project3D(headPos);
-            if (projHead && projHead.depth > 0) {
-                ctx.fillStyle = color;
+            const projNeck = project3D(neckPos);
+            const projTorso = project3D(torsoPos);
+            const projWaist = project3D(waistPos);
+            const projLeftShoulder = project3D(leftShoulderPos);
+            const projRightShoulder = project3D(rightShoulderPos);
+            const projLeftArm = project3D(leftArmPos);
+            const projRightArm = project3D(rightArmPos);
+            const projLeftHand = project3D(leftHandPos);
+            const projRightHand = project3D(rightHandPos);
+            const projLeftLeg = project3D(leftLegPos);
+            const projRightLeg = project3D(rightLegPos);
+            const projLeftFoot = project3D(leftFootPos);
+            const projRightFoot = project3D(rightFootPos);
+            
+            if (!projHead || !projTorso) return;
+            
+            // Draw legs (back layer)
+            ctx.strokeStyle = npc.primaryColor;
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            
+            // Left leg
+            if (projWaist && projLeftLeg && projLeftFoot) {
                 ctx.beginPath();
-                ctx.arc(projHead.x, projHead.y, 10, 0, Math.PI * 2);
+                ctx.moveTo(projWaist.x - 3, projWaist.y);
+                ctx.lineTo(projLeftLeg.x, projLeftLeg.y);
+                ctx.lineTo(projLeftFoot.x, projLeftFoot.y);
+                ctx.stroke();
+            }
+            
+            // Right leg
+            if (projWaist && projRightLeg && projRightFoot) {
+                ctx.beginPath();
+                ctx.moveTo(projWaist.x + 3, projWaist.y);
+                ctx.lineTo(projRightLeg.x, projRightLeg.y);
+                ctx.lineTo(projRightFoot.x, projRightFoot.y);
+                ctx.stroke();
+            }
+            
+            // Draw arms (middle layer)
+            ctx.lineWidth = 3;
+            
+            // Left arm
+            if (projLeftShoulder && projLeftArm && projLeftHand) {
+                ctx.beginPath();
+                ctx.moveTo(projLeftShoulder.x, projLeftShoulder.y);
+                ctx.lineTo(projLeftArm.x, projLeftArm.y);
+                ctx.lineTo(projLeftHand.x, projLeftHand.y);
+                ctx.stroke();
+            }
+            
+            // Right arm
+            if (projRightShoulder && projRightArm && projRightHand) {
+                ctx.beginPath();
+                ctx.moveTo(projRightShoulder.x, projRightShoulder.y);
+                ctx.lineTo(projRightArm.x, projRightArm.y);
+                ctx.lineTo(projRightHand.x, projRightHand.y);
+                ctx.stroke();
+            }
+            
+            // Draw pants/lower body
+            if (projWaist && projLeftLeg && projRightLeg) {
+                ctx.fillStyle = npc.accentColor;
+                ctx.globalAlpha = 0.8;
+                ctx.fillRect(projWaist.x - 4, projWaist.y, 8, (projLeftLeg.y - projWaist.y) / 2);
+                ctx.globalAlpha = 1;
+            }
+            
+            // Draw torso/chest piece with more detail
+            if (projTorso && projWaist) {
+                ctx.fillStyle = npc.primaryColor;
+                ctx.globalAlpha = 0.85;
+                const torsoHeight = Math.abs(projWaist.y - projTorso.y);
+                ctx.fillRect(projTorso.x - 7, projTorso.y, 14, torsoHeight);
+                
+                // Chest panel/tech detail with better proportions
+                ctx.fillStyle = npc.accentColor;
+                ctx.globalAlpha = 0.7;
+                ctx.fillRect(projTorso.x - 4, projTorso.y + 1, 8, torsoHeight - 2);
+                
+                // Tech lines on chest
+                ctx.strokeStyle = npc.accentColor;
+                ctx.lineWidth = 1;
+                ctx.globalAlpha = 0.5;
+                for (let i = 0; i < 3; i++) {
+                    const y = projTorso.y + (torsoHeight / 3) * (i + 0.5);
+                    ctx.beginPath();
+                    ctx.moveTo(projTorso.x - 3, y);
+                    ctx.lineTo(projTorso.x + 3, y);
+                    ctx.stroke();
+                }
+                ctx.globalAlpha = 1;
+            }
+            
+            // Draw shoulders/jacket with better shape
+            if (projLeftShoulder && projRightShoulder && projNeck) {
+                ctx.fillStyle = npc.primaryColor;
+                ctx.globalAlpha = 0.8;
+                ctx.beginPath();
+                ctx.moveTo(projLeftShoulder.x - 2, projLeftShoulder.y);
+                ctx.lineTo(projRightShoulder.x + 2, projRightShoulder.y);
+                ctx.lineTo(projRightShoulder.x + 1, projRightShoulder.y - 4);
+                ctx.lineTo(projNeck.x + 3, projNeck.y - 1);
+                ctx.lineTo(projNeck.x - 3, projNeck.y - 1);
+                ctx.lineTo(projLeftShoulder.x - 1, projLeftShoulder.y - 4);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+            
+            // Draw hands
+            if (projLeftHand && projRightHand) {
+                ctx.fillStyle = npc.skinColor;
+                ctx.beginPath();
+                ctx.arc(projLeftHand.x, projLeftHand.y, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(projRightHand.x, projRightHand.y, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Draw feet with better proportions
+            if (projLeftFoot && projRightFoot) {
+                ctx.fillStyle = '#333333';
+                ctx.fillRect(projLeftFoot.x - 2, projLeftFoot.y, 4, 2.5);
+                ctx.fillRect(projRightFoot.x - 2, projRightFoot.y, 4, 2.5);
+            }
+            
+            // Draw head with skin
+            if (projHead) {
+                // Head sphere
+                ctx.fillStyle = npc.skinColor;
+                ctx.globalAlpha = 0.95;
+                ctx.beginPath();
+                ctx.arc(projHead.x, projHead.y, 9, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+                
+                // Hair/top detail
+                ctx.fillStyle = '#333333';
+                ctx.globalAlpha = 0.7;
+                ctx.beginPath();
+                ctx.moveTo(projHead.x - 8, projHead.y);
+                ctx.quadraticCurveTo(projHead.x, projHead.y - 10, projHead.x + 8, projHead.y);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+                
+                // Helmet/visor overlay for cyborg/agent
+                if (npc.class === 'cyborg') {
+                    ctx.strokeStyle = '#ff6699';
+                    ctx.lineWidth = 2.5;
+                    ctx.globalAlpha = 0.9;
+                    ctx.beginPath();
+                    ctx.arc(projHead.x, projHead.y, 10, 0, Math.PI * 2);
+                    ctx.stroke();
+                    
+                    // Visor glow
+                    ctx.fillStyle = '#ff6699';
+                    ctx.globalAlpha = 0.3;
+                    ctx.beginPath();
+                    ctx.arc(projHead.x, projHead.y, 10.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                } else if (npc.class === 'agent') {
+                    ctx.strokeStyle = npc.accentColor;
+                    ctx.lineWidth = 2;
+                    ctx.globalAlpha = 0.8;
+                    ctx.beginPath();
+                    ctx.arc(projHead.x, projHead.y, 10.5, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
+                }
+            }
+            
+            // Draw eyes with tech glow
+            if (projHead) {
+                const eyeY = projHead.y - 2;
+                const eyeGlow = Math.sin(animTime * 3) * 0.5 + 1; // Pulsing glow
+                
+                ctx.fillStyle = '#00ff00';
+                ctx.globalAlpha = 1;
+                ctx.beginPath();
+                ctx.arc(projHead.x - 3.5, eyeY, 1.8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(projHead.x + 3.5, eyeY, 1.8, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Eyes
-                ctx.fillStyle = '#000';
+                // Eye glow
+                ctx.strokeStyle = '#00ff41';
+                ctx.lineWidth = 0.8;
+                ctx.globalAlpha = 0.6 * eyeGlow;
                 ctx.beginPath();
-                ctx.arc(projHead.x - 4, projHead.y - 2, 2, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.arc(projHead.x - 3.5, eyeY, 3.5, 0, Math.PI * 2);
+                ctx.stroke();
                 ctx.beginPath();
-                ctx.arc(projHead.x + 4, projHead.y - 2, 2, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.arc(projHead.x + 3.5, eyeY, 3.5, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
             }
             
-            // Body
-            const projBody = project3D(bodyPos);
-            if (projBody && projBody.depth > 0) {
-                ctx.fillStyle = color;
-                ctx.fillRect(projBody.x - 6, projBody.y - 12, 12, 20);
+            // Draw class-specific accessories
+            if (npc.class === 'hacker' && projRightHand) {
+                // Draw laptop/device
+                ctx.fillStyle = '#00ffff';
+                ctx.globalAlpha = 0.8;
+                ctx.fillRect(projRightHand.x - 4, projRightHand.y - 3, 8, 6);
+                // Screen glow
+                ctx.strokeStyle = '#00ffff';
+                ctx.lineWidth = 1;
+                ctx.globalAlpha = 0.5;
+                ctx.strokeRect(projRightHand.x - 4, projRightHand.y - 3, 8, 6);
+                ctx.globalAlpha = 1;
+            } else if (npc.class === 'cyborg' && projRightHand) {
+                // Draw glowing weapon/tool
+                ctx.strokeStyle = '#ff0000';
+                ctx.lineWidth = 2.5;
+                ctx.globalAlpha = 0.9;
+                ctx.beginPath();
+                ctx.moveTo(projRightHand.x, projRightHand.y);
+                ctx.lineTo(projRightHand.x + 6, projRightHand.y - 4);
+                ctx.stroke();
+                // Weapon glow
+                ctx.strokeStyle = '#ff0000';
+                ctx.lineWidth = 1;
+                ctx.globalAlpha = 0.4;
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            } else if (npc.class === 'ghost' && projRightHand) {
+                // Draw spectral effect
+                ctx.strokeStyle = '#ff10f0';
+                ctx.lineWidth = 1;
+                ctx.globalAlpha = 0.6;
+                ctx.beginPath();
+                ctx.arc(projRightHand.x, projRightHand.y, 3, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
             }
             
-            // Legs
-            const projLeg = project3D(legPos);
-            if (projLeg && projLeg.depth > 0) {
-                ctx.fillStyle = color;
-                ctx.fillRect(projLeg.x - 3, projLeg.y, 3, 8);
-                ctx.fillRect(projLeg.x, projLeg.y, 3, 8);
+            // Aura glow based on class with pulsing effect
+            if (projHead) {
+                const glowIntensity = Math.sin(animTime * 2.5) * 0.2 + 0.4;
+                ctx.strokeStyle = npc.accentColor;
+                ctx.lineWidth = 1;
+                ctx.globalAlpha = glowIntensity;
+                ctx.beginPath();
+                ctx.arc(projHead.x, projHead.y, 16, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
             }
             
-            // Name tag
-            if (projHead && projHead.depth > 0) {
-                ctx.fillStyle = color;
-                ctx.font = '11px monospace';
-                ctx.fillText(name, projHead.x - 20, projHead.y - 25);
+            // Name tag with bracket styling
+            if (projHead) {
+                ctx.fillStyle = npc.primaryColor;
+                ctx.font = 'bold 9px monospace';
+                const homeIndicator = npc.atHome ? ' [HOME]' : '';
+                ctx.fillText('[ ' + npc.name + homeIndicator + ' ]', projHead.x - 30, projHead.y - 22);
+                
+                // Class indicator
+                ctx.fillStyle = npc.accentColor;
+                ctx.font = '8px monospace';
+                ctx.fillText(npc.class.toUpperCase(), projHead.x - 20, projHead.y + 18);
+                
+                // If NPC is at home, draw a house indicator below
+                if (npc.atHome) {
+                    ctx.fillStyle = '#ffaa00';
+                    ctx.globalAlpha = 0.6;
+                    ctx.font = 'bold 10px monospace';
+                    ctx.fillText('⌂', projHead.x - 3, projHead.y + 30);
+                    ctx.globalAlpha = 1;
+                }
             }
         }
 
@@ -456,7 +780,9 @@
             const half_w = building.width / 2;
             const half_d = building.depth / 2;
             const h = building.height;
+            const rh = building.roofHeight || 2;
             
+            // Base corners
             const corners = [
                 building.pos.add(new Vec3(-half_w, 0, -half_d)),
                 building.pos.add(new Vec3(half_w, 0, -half_d)),
@@ -468,26 +794,34 @@
                 building.pos.add(new Vec3(-half_w, h, half_d))
             ];
             
+            // Roof peak
+            const roofPeaks = [
+                building.pos.add(new Vec3(0, h + rh, -half_d)),
+                building.pos.add(new Vec3(0, h + rh, half_d))
+            ];
+            
             const proj = corners.map(c => {
                 const p = project3D(c);
                 return p || { x: -1000, y: -1000, depth: 99999 };
             });
             
-            ctx.strokeStyle = building.color;
-            ctx.fillStyle = building.color;
-            ctx.globalAlpha = 0.6;
-            ctx.lineWidth = 2;
+            const projRoof = roofPeaks.map(c => {
+                const p = project3D(c);
+                return p || { x: -1000, y: -1000, depth: 99999 };
+            });
             
-            // Draw building faces
-            const faces = [
-                [0, 1, 5, 4],
-                [1, 2, 6, 5],
-                [2, 3, 7, 6],
-                [3, 0, 4, 7]
+            // Draw walls with shading
+            const walls = [
+                { indices: [0, 1, 5, 4], alpha: 0.85, color: building.color }, // Front
+                { indices: [1, 2, 6, 5], alpha: 0.70, color: building.color }, // Right
+                { indices: [3, 0, 4, 7], alpha: 0.70, color: building.color }, // Left
+                { indices: [2, 3, 7, 6], alpha: 0.75, color: building.color }  // Back
             ];
             
-            faces.forEach(face => {
-                const [a, b, c, d] = face;
+            walls.forEach(wall => {
+                const [a, b, c, d] = wall.indices;
+                ctx.fillStyle = wall.color;
+                ctx.globalAlpha = wall.alpha;
                 ctx.beginPath();
                 ctx.moveTo(proj[a].x, proj[a].y);
                 ctx.lineTo(proj[b].x, proj[b].y);
@@ -495,8 +829,77 @@
                 ctx.lineTo(proj[d].x, proj[d].y);
                 ctx.closePath();
                 ctx.fill();
+                
+                ctx.strokeStyle = '#00ff41';
+                ctx.lineWidth = 1;
+                ctx.globalAlpha = 0.4;
                 ctx.stroke();
             });
+            
+            // Draw pitched roof
+            ctx.globalAlpha = 0.8;
+            ctx.fillStyle = '#333333';
+            
+            // Front roof face
+            ctx.beginPath();
+            ctx.moveTo(proj[4].x, proj[4].y); // Top-front-left
+            ctx.lineTo(proj[5].x, proj[5].y); // Top-front-right
+            ctx.lineTo(projRoof[0].x, projRoof[0].y); // Front peak
+            ctx.closePath();
+            ctx.fill();
+            
+            // Back roof face
+            ctx.beginPath();
+            ctx.moveTo(proj[6].x, proj[6].y); // Top-back-right
+            ctx.lineTo(proj[7].x, proj[7].y); // Top-back-left
+            ctx.lineTo(projRoof[1].x, projRoof[1].y); // Back peak
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.globalAlpha = 1;
+            
+            // Draw windows on front face
+            const [p0, p1, p5, p4] = [proj[0], proj[1], proj[5], proj[4]];
+            ctx.fillStyle = '#00ffff';
+            ctx.globalAlpha = 0.5;
+            
+            const winW = (p1.x - p0.x) / 4;
+            const winH = (p4.y - p0.y) / 2.5;
+            
+            // Window positions
+            const windowPositions = [
+                [p0.x + winW * 0.5, p0.y + winH * 0.4],
+                [p0.x + winW * 2.5, p0.y + winH * 0.4],
+                [p0.x + winW * 0.5, p0.y + winH * 1.5],
+                [p0.x + winW * 2.5, p0.y + winH * 1.5]
+            ];
+            
+            windowPositions.forEach(([wx, wy]) => {
+                ctx.fillRect(wx, wy, winW * 0.6, winH * 0.4);
+                ctx.strokeStyle = '#00ffff';
+                ctx.lineWidth = 1;
+                ctx.globalAlpha = 0.7;
+                ctx.strokeRect(wx, wy, winW * 0.6, winH * 0.4);
+            });
+            
+            // Draw door on front face
+            const doorX = p0.x + (p1.x - p0.x) / 2 - (winW * 0.8) / 2;
+            const doorY = p0.y + (p4.y - p0.y) - winH * 0.9;
+            ctx.globalAlpha = 0.8;
+            ctx.fillStyle = '#664422';
+            ctx.fillRect(doorX, doorY, winW * 0.8, winH * 0.9);
+            
+            // Door frame and knob
+            ctx.strokeStyle = '#884433';
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.9;
+            ctx.strokeRect(doorX, doorY, winW * 0.8, winH * 0.9);
+            
+            ctx.fillStyle = '#ffaa00';
+            ctx.globalAlpha = 0.8;
+            ctx.beginPath();
+            ctx.arc(doorX + winW * 0.65, doorY + winH * 0.45, 2, 0, Math.PI * 2);
+            ctx.fill();
             
             ctx.globalAlpha = 1;
         }
@@ -504,7 +907,7 @@
         function drawNPCs() {
             npcs.forEach(npc => {
                 npc.distToPlayer = camera.pos.dist(npc.pos);
-                drawNPCCharacter(npc.pos, npc.color, npc.name);
+                drawNPCCharacter(npc.pos, npc);
                 
                 const isClose = npc.distToPlayer < 15;
                 if (isClose) {
@@ -613,6 +1016,11 @@
             gameState.selectedOption = null;
             gameState.challengeActive = true;
             
+            // Mark which building this challenge is for
+            if (npc.houseIndex >= 0) {
+                gameState.currentChallenge.buildingIndex = npc.houseIndex;
+            }
+            
             document.getElementById('challengeTitle').textContent = challenge.title + ' (' + npc.name + ')';
             document.getElementById('challengeText').textContent = challenge.question;
             
@@ -645,6 +1053,12 @@
                 gameState.systemsMet++;
                 gameState.score += 50;
                 gameState.currentChallenge.npc.active = false;
+                
+                // Mark the building as challenged
+                if (gameState.currentChallenge.buildingIndex >= 0) {
+                    buildings[gameState.currentChallenge.buildingIndex].challengeCompleted = true;
+                }
+                
                 showToast('+50 POINTS', 'success');
             } else {
                 gameState.score = Math.max(0, gameState.score - 10);
@@ -728,6 +1142,20 @@
             document.getElementById('scoreDisplay').textContent = gameState.score;
             document.getElementById('systemsDisplay').textContent = gameState.systemsMet + '/8';
             document.getElementById('speedDisplay').textContent = (gameState.playerSpeed * 1000).toFixed(0);
+            
+            // Update quest progress
+            const completedBuildings = buildings.filter(b => b.challengeCompleted).length;
+            const totalBuildings = Math.min(buildings.length, 8);
+            let questHTML = `[${completedBuildings}/${totalBuildings}] SYSTEMS BREACHED<br>`;
+            
+            for (let i = 0; i < Math.min(buildings.length, 8); i++) {
+                const b = buildings[i];
+                const status = b.challengeCompleted ? '✓' : '○';
+                const color = b.challengeCompleted ? '#39ff14' : '#666666';
+                questHTML += `<div style="color: ${color};">${status} NODE_${String.fromCharCode(65 + i)}</div>`;
+            }
+            
+            document.getElementById('buildingStatus').innerHTML = questHTML;
         }
 
         // ============== RENDER LOOP ==============
